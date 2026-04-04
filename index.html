@@ -3,837 +3,833 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>경영사항 동의요청 자동생성기</title>
+<title>경영관리 문서 자동생성기</title>
 <style>
 :root {
-  --bg: #f5f4f0;
-  --surface: #ffffff;
-  --surface2: #f0efe9;
-  --border: #e2e0d8;
-  --border2: #d0cec4;
-  --text: #1a1917;
-  --text2: #6b6960;
-  --text3: #9b9a92;
-  --accent: #1a1917;
-  --accent-light: #f0efe9;
-  --danger: #c0392b;
-  --success: #1a6b3a;
-  --radius: 8px;
-  --radius-lg: 12px;
+  --bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;--border:#e2e0d8;--border2:#d0cec4;
+  --text:#1a1917;--text2:#6b6960;--text3:#9b9a92;--danger:#c0392b;--success:#1a6b3a;
+  --r:8px;--rl:12px;
 }
-
-* { box-sizing: border-box; margin: 0; padding: 0; }
-
-body {
-  font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-  font-size: 14px;
-  line-height: 1.6;
-}
-
-/* Layout */
-.app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
-
-.sidebar {
-  background: var(--text);
-  color: #fff;
-  padding: 28px 20px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.sidebar-logo {
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: .08em;
-  text-transform: uppercase;
-  color: #fff;
-  padding-bottom: 20px;
-  margin-bottom: 10px;
-  border-bottom: 1px solid rgba(255,255,255,.12);
-}
-
-.sidebar-logo span { display: block; font-size: 10px; font-weight: 400; color: rgba(255,255,255,.45); margin-top: 2px; letter-spacing: .04em; }
-
-.nav-item {
-  padding: 8px 10px;
-  border-radius: var(--radius);
-  cursor: pointer;
-  font-size: 13px;
-  color: rgba(255,255,255,.65);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all .15s;
-}
-.nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
-.nav-item.active { background: rgba(255,255,255,.13); color: #fff; font-weight: 500; }
-
-.nav-section {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .1em;
-  color: rgba(255,255,255,.3);
-  padding: 16px 10px 6px;
-}
-
-.sidebar-bottom {
-  margin-top: auto;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255,255,255,.1);
-}
-
-.main { padding: 32px 40px; max-width: 900px; }
-
-.page-header { margin-bottom: 28px; }
-.page-title { font-size: 22px; font-weight: 700; color: var(--text); }
-.page-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
-
-/* Cards */
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  padding: 20px 22px;
-  margin-bottom: 16px;
-}
-
-.card-title {
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: .06em;
-  text-transform: uppercase;
-  color: var(--text2);
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-/* Form */
-.form-grid { display: grid; gap: 10px; }
-.form-grid-2 { grid-template-columns: 1fr 1fr; }
-.form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
-
-.field label {
-  display: block;
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text2);
-  margin-bottom: 4px;
-  letter-spacing: .02em;
-}
-
-.field input,
-.field textarea,
-.field select {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--text);
-  font-size: 13px;
-  font-family: inherit;
-  transition: border-color .15s;
-  outline: none;
-}
-
-.field input:focus,
-.field textarea:focus { border-color: var(--text); }
-.field textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 7px 14px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border2);
-  background: var(--surface);
-  color: var(--text);
-  font-size: 12px;
-  font-family: inherit;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all .12s;
-  white-space: nowrap;
-}
-.btn:hover { background: var(--surface2); border-color: var(--border2); }
-.btn-primary {
-  background: var(--text);
-  color: #fff;
-  border-color: var(--text);
-  font-size: 13px;
-  padding: 9px 20px;
-}
-.btn-primary:hover { opacity: .85; background: var(--text); }
-.btn-sm { padding: 4px 9px; font-size: 11px; }
-.btn-danger { color: var(--danger); border-color: var(--border); }
-.btn-danger:hover { background: #fef2f1; border-color: var(--danger); }
-.btn-success { background: var(--success); color: #fff; border-color: var(--success); }
-.btn-success:hover { opacity: .88; background: var(--success); }
-
-/* Investor list */
-.inv-item {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  margin-bottom: 8px;
-  overflow: hidden;
-}
-
-.inv-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 14px;
-  background: var(--surface);
-  cursor: default;
-}
-
-.inv-check { flex-shrink: 0; width: 16px; height: 16px; cursor: pointer; accent-color: var(--text); }
-.inv-name-block { flex: 1; }
-.inv-name { font-size: 13px; font-weight: 600; color: var(--text); }
-.inv-meta { font-size: 11px; color: var(--text3); margin-top: 1px; }
-
-.inv-body {
-  display: none;
-  padding: 14px;
-  background: var(--surface2);
-  border-top: 1px solid var(--border);
-}
-.inv-body.open { display: block; }
-
-/* Agenda */
-.agenda-item {
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 14px 16px;
-  margin-bottom: 8px;
-  background: var(--surface);
-}
-.agenda-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--text2);
-  text-transform: uppercase;
-  letter-spacing: .05em;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* Status bar */
-.status-bar {
-  position: fixed;
-  bottom: 24px;
-  right: 32px;
-  background: var(--text);
-  color: #fff;
-  padding: 10px 18px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
-  display: none;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 4px 20px rgba(0,0,0,.15);
-  z-index: 1000;
-}
-.status-bar.show { display: flex; }
-
-/* Tab system */
-.tab-bar { display: flex; gap: 2px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
-.tab {
-  padding: 8px 16px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text2);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  transition: all .15s;
-}
-.tab.active { color: var(--text); border-bottom-color: var(--text); }
-.tab:hover:not(.active) { color: var(--text); }
-
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-
-/* Preview area */
-.preview-wrap {
-  background: #888;
-  padding: 24px;
-  border-radius: var(--radius-lg);
-  overflow: auto;
-  max-height: 70vh;
-}
-.preview-page {
-  background: white;
-  width: 210mm;
-  min-height: 297mm;
-  margin: 0 auto 16px;
-  padding: 25mm 20mm;
-  font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
-  font-size: 10pt;
-  color: #111;
-  line-height: 1.7;
-  box-shadow: 0 4px 24px rgba(0,0,0,.25);
-}
-
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6;}
+.app{display:grid;grid-template-columns:240px 1fr;min-height:100vh;}
+.sidebar{background:var(--text);color:#fff;padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;gap:1px;}
+.logo{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#fff;padding-bottom:18px;margin-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1);}
+.logo span{display:block;font-size:9px;font-weight:400;color:rgba(255,255,255,.4);margin-top:2px;}
+.nav-sec{font-size:9px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.28);padding:14px 8px 5px;}
+.nav-item{padding:7px 10px;border-radius:var(--r);cursor:pointer;font-size:12px;color:rgba(255,255,255,.6);display:flex;align-items:center;gap:7px;transition:all .15s;}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff;}
+.nav-item.active{background:rgba(255,255,255,.13);color:#fff;font-weight:500;}
+.sidebar-bottom{margin-top:auto;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);font-size:10px;color:rgba(255,255,255,.3);line-height:1.7;}
+.main{padding:28px 36px;max-width:860px;}
+.tab-content{display:none;}.tab-content.active{display:block;}
+.ph{margin-bottom:24px;}.ph h1{font-size:20px;font-weight:700;}.ph p{font-size:12px;color:var(--text2);margin-top:3px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:18px 20px;margin-bottom:14px;}
+.ct{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;}
+.fg{display:grid;gap:9px;}.fg2{grid-template-columns:1fr 1fr;}.fg3{grid-template-columns:1fr 1fr 1fr;}
+.f label{display:block;font-size:11px;font-weight:500;color:var(--text2);margin-bottom:3px;}
+.f input,.f textarea,.f select{width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);color:var(--text);font-size:12px;font-family:inherit;outline:none;transition:border-color .15s;}
+.f input:focus,.f textarea:focus,.f select:focus{border-color:var(--text);}
+.f textarea{resize:vertical;min-height:72px;line-height:1.6;}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;border-radius:var(--r);border:1px solid var(--border2);background:var(--surface);color:var(--text);font-size:12px;font-family:inherit;font-weight:500;cursor:pointer;transition:all .12s;white-space:nowrap;}
+.btn:hover{background:var(--surface2);}
+.btn-p{background:var(--text);color:#fff;border-color:var(--text);font-size:13px;padding:8px 18px;}
+.btn-p:hover{opacity:.85;background:var(--text);}
+.btn-sm{padding:3px 8px;font-size:11px;}
+.btn-d{color:var(--danger);border-color:var(--border);}
+.btn-d:hover{background:#fef2f1;border-color:var(--danger);}
+.flex{display:flex;align-items:center;gap:8px;}
+.fe{justify-content:flex-end;}
+.mt8{margin-top:8px;}.mt12{margin-top:12px;}.mt16{margin-top:16px;}
+/* Corp items */
+.ci{border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;overflow:hidden;}
+.ci-hd{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--surface);}
+.ci-name{font-size:13px;font-weight:600;flex:1;}
+.ci-sub{font-size:11px;color:var(--text3);margin-top:1px;}
+.ci-body{display:none;padding:13px;background:var(--surface2);border-top:1px solid var(--border);}
+.ci-body.open{display:block;}
+/* Stamp area */
+.stamp-zone{border:1.5px dashed var(--border2);border-radius:var(--r);padding:14px;text-align:center;position:relative;cursor:pointer;transition:border-color .15s;}
+.stamp-zone:hover{border-color:var(--text);}
+.stamp-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;}
+.stamp-zone img{max-width:80px;max-height:80px;object-fit:contain;}
+.stamp-zone .ph2{font-size:11px;color:var(--text3);margin-top:4px;}
+/* Type toggle */
+.type-tog{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:16px;}
+.type-btn{padding:5px 12px;border:1px solid var(--border);border-radius:20px;font-size:12px;cursor:pointer;background:var(--surface);color:var(--text2);transition:all .15s;font-family:inherit;}
+.type-btn.sel{background:var(--text);color:#fff;border-color:var(--text);}
 /* Action bar */
-.action-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px 22px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  margin-bottom: 24px;
-}
-.action-info { font-size: 13px; color: var(--text2); }
-.action-info strong { color: var(--text); }
-
-/* Chips */
-.chip {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 20px;
-  font-size: 11px;
-  font-weight: 500;
-  background: var(--surface2);
-  color: var(--text2);
-  border: 1px solid var(--border);
-}
-.chip-selected { background: #e8f5e9; color: var(--success); border-color: #c8e6c9; }
-
-/* Responsive helpers */
-.flex { display: flex; align-items: center; gap: 8px; }
-.flex-end { justify-content: flex-end; }
-.mt8 { margin-top: 8px; }
-.mt12 { margin-top: 12px; }
+.abar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);margin-bottom:20px;}
+.abar-info{font-size:12px;color:var(--text2);}
+/* Agenda/attachment items */
+.ai{border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;margin-bottom:7px;background:var(--surface);}
+.ai-lbl{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.04em;display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+/* Status toast */
+.toast{position:fixed;bottom:22px;right:28px;background:var(--text);color:#fff;padding:9px 16px;border-radius:18px;font-size:12px;font-weight:500;display:none;align-items:center;gap:7px;box-shadow:0 4px 18px rgba(0,0,0,.14);z-index:9999;}
+.toast.show{display:flex;}
+/* Section divider */
+.sdiv{border:none;border-top:1px solid var(--border);margin:16px 0;}
 </style>
 </head>
 <body>
-
 <div class="app">
-
-<!-- Sidebar -->
 <div class="sidebar">
-  <div class="sidebar-logo">
-    경영관리 도구
-    <span>동의요청 자동생성기 v1.0</span>
-  </div>
-
-  <div class="nav-section">메뉴</div>
-  <div class="nav-item active" onclick="showTab('common')">
-    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-    공통 설정
-  </div>
-  <div class="nav-item" onclick="showTab('investors')">
-    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
-    투자사 관리
-  </div>
-  <div class="nav-item" onclick="showTab('agenda')">
-    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-    안건 입력
-  </div>
-  <div class="nav-item" onclick="showTab('generate')">
-    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-    문서 생성
-  </div>
-
-  <div class="sidebar-bottom">
-    <div style="font-size:11px;color:rgba(255,255,255,.35);line-height:1.6">
-      데이터는 브라우저에<br>자동 저장됩니다
-    </div>
-  </div>
+  <div class="logo">경영관리 도구<span>문서 자동생성기 v2.0</span></div>
+  <div class="nav-sec">관리</div>
+  <div class="nav-item" onclick="go('corps')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2"/></svg>법인·도장 관리</div>
+  <div class="nav-sec">문서 생성</div>
+  <div class="nav-item" onclick="go('consent')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>경영사항 동의요청</div>
+  <div class="nav-item" onclick="go('proxy')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>위임장</div>
+  <div class="nav-item" onclick="go('notice')"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>주총 소집통지서</div>
+  <div class="sidebar-bottom">데이터는 브라우저에<br>자동 저장됩니다</div>
 </div>
-
-<!-- Main -->
 <div class="main">
 
-<!-- 탭: 공통 설정 -->
-<div class="tab-content active" id="tab-common">
-  <div class="page-header">
-    <div class="page-title">공통 설정</div>
-    <div class="page-sub">매번 바뀌는 정보만 수정하세요. 저장됩니다.</div>
-  </div>
+<!-- ===== 법인·도장 관리 ===== -->
+<div class="tab-content active" id="tab-corps">
+  <div class="ph"><h1>법인·도장 관리</h1><p>한 번 등록하면 모든 문서에서 자동으로 불러옵니다.</p></div>
+  <div class="flex fe" style="margin-bottom:12px"><button class="btn" onclick="addCorp()">+ 법인 추가</button></div>
+  <div id="corpList"></div>
+</div>
 
+<!-- ===== 경영사항 동의요청 ===== -->
+<div class="tab-content" id="tab-consent">
+  <div class="ph"><h1>경영사항 동의요청</h1><p>투자사별 공문 + 동의요청서 + 동의서 자동 생성</p></div>
   <div class="card">
-    <div class="card-title">발송 정보</div>
-    <div class="form-grid form-grid-3">
-      <div class="field"><label>문서 번호</label><input id="docNum" placeholder="2026-04-경영관리본부-001"></div>
-      <div class="field"><label>발신일</label><input id="docDate" type="date"></div>
-      <div class="field"><label>회신 기한</label><input id="replyDeadline" type="date"></div>
+    <div class="ct">발송 정보</div>
+    <div class="fg fg3">
+      <div class="f"><label>문서 번호</label><input id="c_docNum"></div>
+      <div class="f"><label>발신일</label><input id="c_docDate" type="date"></div>
+      <div class="f"><label>회신 기한</label><input id="c_replyDl" type="date"></div>
     </div>
-    <div class="form-grid form-grid-2 mt8">
-      <div class="field"><label>회신 이메일</label><input id="replyEmail" placeholder="shhan@clify.co.kr"></div>
-      <div class="field"><label>발신 회사명</label><input id="senderCompany" placeholder="주식회사 유쾌한프로젝트"></div>
+    <div class="fg fg2 mt8">
+      <div class="f"><label>회신 이메일</label><input id="c_email"></div>
+      <div class="f"><label>발신 회사 (법인 선택)</label>
+        <select id="c_corpSel" onchange="applyConsentCorp()"><option value="">직접 입력</option></select>
+      </div>
     </div>
-    <div class="form-grid form-grid-2 mt8">
-      <div class="field"><label>발신 대표이사</label><input id="senderCeo" placeholder="홍주열"></div>
-      <div class="field"><label>발신 주소</label><input id="senderAddr" placeholder="인천광역시 부평구..."></div>
+    <div class="fg fg2 mt8">
+      <div class="f"><label>발신 대표이사</label><input id="c_ceo"></div>
+      <div class="f"><label>발신 주소</label><input id="c_addr"></div>
     </div>
   </div>
-
-  <div class="flex flex-end">
-    <button class="btn btn-primary" onclick="saveCommon()">저장</button>
+  <div class="ct mt12" style="display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text2)">안건</span>
+    <button class="btn btn-sm" onclick="addConsAgenda()">+ 안건 추가</button>
+  </div>
+  <div id="c_agendaList"></div>
+  <div class="ct mt16" style="display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text2)">투자사</span>
+    <button class="btn btn-sm" onclick="addInvestor()">+ 투자사 추가</button>
+  </div>
+  <div id="c_invList"></div>
+  <div class="abar mt12">
+    <div class="abar-info" id="c_info">로딩 중...</div>
+    <div class="flex" style="gap:7px">
+      <button class="btn" onclick="cCheckAll(true)">전체 선택</button>
+      <button class="btn" onclick="cCheckAll(false)">전체 해제</button>
+      <button class="btn btn-p" onclick="genConsent()">PDF 생성 ↗</button>
+    </div>
   </div>
 </div>
 
-<!-- 탭: 투자사 관리 -->
-<div class="tab-content" id="tab-investors">
-  <div class="page-header">
-    <div class="page-title">투자사 관리</div>
-    <div class="page-sub">한 번 등록하면 다음에도 그대로 사용됩니다.</div>
-  </div>
-
-  <div class="flex flex-end" style="margin-bottom:12px">
-    <button class="btn" onclick="addInvestor()">+ 투자사 추가</button>
-  </div>
-
-  <div id="investorList"></div>
-</div>
-
-<!-- 탭: 안건 입력 -->
-<div class="tab-content" id="tab-agenda">
-  <div class="page-header">
-    <div class="page-title">안건 입력</div>
-    <div class="page-sub">이번 유상증자/주총의 안건을 입력하세요. 안건은 여러 개 가능합니다.</div>
-  </div>
-
-  <div class="flex flex-end" style="margin-bottom:12px">
-    <button class="btn" onclick="addAgenda()">+ 안건 추가</button>
-  </div>
-
-  <div id="agendaList"></div>
-</div>
-
-<!-- 탭: 문서 생성 -->
-<div class="tab-content" id="tab-generate">
-  <div class="page-header">
-    <div class="page-title">문서 생성</div>
-    <div class="page-sub">선택한 투자사별로 공문 + 동의요청서 + 동의서 3페이지를 생성합니다.</div>
-  </div>
-
-  <div class="action-bar">
-    <div class="action-info" id="actionInfo">로딩 중...</div>
-    <div class="flex" style="gap:8px">
-      <button class="btn" onclick="checkAll(true)">전체 선택</button>
-      <button class="btn" onclick="checkAll(false)">전체 해제</button>
-      <button class="btn btn-primary" onclick="generateAll()">📄 선택 투자사 PDF 생성 ↗</button>
+<!-- ===== 위임장 ===== -->
+<div class="tab-content" id="tab-proxy">
+  <div class="ph"><h1>위임장</h1><p>위임인·수임인 유형 선택 후 정보 입력, 도장 선택하여 생성</p></div>
+  <div class="card">
+    <div class="ct">유형 선택</div>
+    <div class="type-tog">
+      <button class="type-btn sel" onclick="setProxyType('법인→법인',this)">법인 → 법인</button>
+      <button class="type-btn" onclick="setProxyType('법인→개인',this)">법인 → 개인</button>
+      <button class="type-btn" onclick="setProxyType('개인→법인',this)">개인 → 법인</button>
+      <button class="type-btn" onclick="setProxyType('개인→개인',this)">개인 → 개인</button>
+    </div>
+    <div class="fg fg2">
+      <div>
+        <div class="ct">위임인</div>
+        <div id="p_grantorFields"></div>
+      </div>
+      <div>
+        <div class="ct">수임인</div>
+        <div id="p_granteeFields"></div>
+      </div>
     </div>
   </div>
+  <div class="card">
+    <div class="ct">위임 내용 및 날짜</div>
+    <div class="f"><label>위임 내용</label><textarea id="p_content" placeholder="예: 주주간계약서, 부속합의서 날인 일체"></textarea></div>
+    <div class="fg fg2 mt8">
+      <div class="f"><label>위임 일자</label><input id="p_date" type="date"></div>
+      <div class="f"><label>위임인 도장</label>
+        <select id="p_stampSel"><option value="">도장 없음 (수기 날인)</option></select>
+      </div>
+    </div>
+  </div>
+  <div class="flex fe"><button class="btn btn-p" onclick="genProxy()">위임장 PDF 생성 ↗</button></div>
+</div>
 
-  <div id="generateList"></div>
+<!-- ===== 주총 소집통지서 ===== -->
+<div class="tab-content" id="tab-notice">
+  <div class="ph"><h1>주총 소집통지서</h1><p>소집통지서 + 위임장 + 별첨 자동 생성</p></div>
+  <div class="card">
+    <div class="ct">기본 정보</div>
+    <div class="fg fg2">
+      <div class="f"><label>법인 선택</label><select id="n_corp" onchange="applyNoticeCorp()"><option value="">선택</option></select></div>
+      <div class="f"><label>주주총회 종류</label>
+        <select id="n_type"><option value="정기">정기주주총회</option><option value="임시">임시주주총회</option></select>
+      </div>
+    </div>
+    <div class="fg fg3 mt8">
+      <div class="f"><label>개최일</label><input id="n_date" type="date"></div>
+      <div class="f"><label>시간</label><input id="n_time" value="09:00"></div>
+      <div class="f"><label>통지일</label><input id="n_noticeDate" type="date"></div>
+    </div>
+    <div class="f mt8"><label>장소</label><input id="n_location" placeholder="예: 서울특별시 강남구 언주로 174길 13, 미소빌딩 4층 지점 회의실"></div>
+    <div class="fg fg2 mt8">
+      <div class="f"><label>대표이사</label><input id="n_ceo"></div>
+      <div class="f"><label>도장 선택</label><select id="n_stampSel"><option value="">도장 없음 (직인생략)</option></select></div>
+    </div>
+  </div>
+  <div class="ct mt12" style="display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text2)">안건</span>
+    <button class="btn btn-sm" onclick="addNoticeAgenda()">+ 안건 추가</button>
+  </div>
+  <div id="n_agendaList"></div>
+  <div class="ct mt12" style="display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text2)">별첨 <span style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--text3)">(선택)</span></span>
+    <button class="btn btn-sm" onclick="addAttachment()">+ 별첨 추가</button>
+  </div>
+  <div id="n_attachList"></div>
+  <div class="flex fe mt12"><button class="btn btn-p" onclick="genNotice()">소집통지서 PDF 생성 ↗</button></div>
 </div>
 
 </div><!-- /main -->
 </div><!-- /app -->
-
-<div class="status-bar" id="statusBar">
-  <span id="statusText"></span>
-</div>
+<div class="toast" id="toast"><span id="toastMsg"></span></div>
 
 <script>
-// ===== DATA =====
+// ============================================================
+// DATA
+// ============================================================
+let corps = [];
 let investors = [];
-let agendas = [];
-let activeTab = 'common';
+let consAgendas = [];
+let noticeAgendas = [];
+let attachments = [];
+let proxyType = '법인→법인';
 
-const DEFAULT_INVESTORS = [
-  { id: 1, name: "500코리아Ⅲ 투자조합", addr: "서울특별시 강남구 선릉로 428, 12층 104호(대치동)", ceo: "김경민", contractDate: "2025-06-24", contractRef: "주주간계약서 제3조(경영사항에 대한 동의권)", selected: true },
-  { id: 2, name: "뉴본한세예스24 라이징스타2호 투자조합", addr: "서울특별시 강남구 역삼로73길 5, B1층", ceo: "이근웅", contractDate: "2026-02-04", contractRef: "투자계약서 제8조(경영사항에 대한 동의권)", selected: true },
-  { id: 3, name: "두나무앤파트너스 주식회사", addr: "서울특별시 서초구 강남대로 369, 6층(서초동, 디에프타워)", ceo: "이강준", contractDate: "2025-06-24", contractRef: "주주간계약서 제3조(경영사항에 대한 동의권)", selected: true },
-  { id: 4, name: "딜라이트 킴벤처 투자조합 제1호", addr: "서울특별시 서초구 강남대로 53길 8, 10층 2호", ceo: "김현성", contractDate: "2026-03-09", contractRef: "주주간계약서 제2조(경영사항에 대한 동의권 및 협의권)", selected: true },
-  { id: 5, name: "시흥창업투자펀드 2호", addr: "경기도 시흥시 산기대학로 237, 8층 804호(정왕동, 한국공학대학교)", ceo: "", contractDate: "2025-09-15", contractRef: "투자계약서 제8조(경영사항에 대한 동의권)", selected: true },
-];
-const DEFAULT_AGENDAS = [
-  { id: 1, title: "신주식 발행의 건", content: "당사는 「벤처기업육성에 관한 특별조치법」 제16조의3에 따라 회사의 경영·기술 혁신 등에 기여하거나 기여할 수 있는 외부 전문가에게 주식매수선택권을 부여하고자 합니다.\n\n• 이름: \n• 역할: \n• 부여주식수:  주\n• 행사가격:  원" },
-];
+const KEYS = {
+  corps:'mgmt_corps', investors:'mgmt_investors', consAgendas:'mgmt_consAgendas',
+  common:'mgmt_common'
+};
 
-// ===== STORAGE =====
-function save() {
-  try {
-    localStorage.setItem('inv_app_investors', JSON.stringify(investors));
-    localStorage.setItem('inv_app_agendas', JSON.stringify(agendas));
-  } catch(e) {}
+function save(key, val){ try{ localStorage.setItem(key, JSON.stringify(val)); }catch(e){} }
+function load(key){ try{ const v=localStorage.getItem(key); return v?JSON.parse(v):null; }catch(e){return null;} }
+function saveStamp(corpId, type, b64){ try{ localStorage.setItem(`stamp_${corpId}_${type}`, b64); }catch(e){} }
+function loadStamp(corpId, type){ try{ return localStorage.getItem(`stamp_${corpId}_${type}`)||''; }catch(e){return '';} }
+function removeStamp(corpId, type){ try{ localStorage.removeItem(`stamp_${corpId}_${type}`); }catch(e){} }
+
+function toast(msg, dur=2500){
+  const el=document.getElementById('toast'); document.getElementById('toastMsg').textContent=msg;
+  el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),dur);
+}
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function fmtDate(s){
+  if(!s)return '　　년　월　일';
+  const d=new Date(s); return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
+}
+function fmtDateDay(s){
+  if(!s)return '';
+  const d=new Date(s); const dy=['일','월','화','수','목','금','토'][d.getDay()];
+  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일(${dy})`;
 }
 
-function saveCommon() {
-  const common = getCommon();
-  try { localStorage.setItem('inv_app_common', JSON.stringify(common)); } catch(e) {}
-  toast('공통 설정 저장됨');
+// ============================================================
+// NAV
+// ============================================================
+function go(tab){
+  document.querySelectorAll('.tab-content').forEach(e=>e.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(e=>e.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  const tabs=['corps','consent','proxy','notice'];
+  const navs=document.querySelectorAll('.nav-item');
+  const idx=tabs.indexOf(tab);
+  if(navs[idx+1]) navs[idx+1].classList.add('active');
+  if(tab==='consent'){ refreshConsCorpSel(); renderConsInvestors(); updateConsInfo(); }
+  if(tab==='proxy'){ renderProxyFields(); refreshProxyStamps(); }
+  if(tab==='notice'){ refreshNoticeCorpSel(); refreshNoticeStamps(); renderNoticeAgendas(); renderAttachments(); }
 }
 
-function load() {
-  try {
-    const inv = localStorage.getItem('inv_app_investors');
-    investors = inv ? JSON.parse(inv) : [...DEFAULT_INVESTORS];
-    const ag = localStorage.getItem('inv_app_agendas');
-    agendas = ag ? JSON.parse(ag) : [...DEFAULT_AGENDAS];
-    const cm = localStorage.getItem('inv_app_common');
-    if (cm) {
-      const c = JSON.parse(cm);
-      if (c.docNum) document.getElementById('docNum').value = c.docNum;
-      if (c.replyEmail) document.getElementById('replyEmail').value = c.replyEmail;
-      if (c.senderCompany) document.getElementById('senderCompany').value = c.senderCompany;
-      if (c.senderCeo) document.getElementById('senderCeo').value = c.senderCeo;
-      if (c.senderAddr) document.getElementById('senderAddr').value = c.senderAddr;
-      if (c.docDate) document.getElementById('docDate').value = c.docDate;
-      if (c.replyDeadline) document.getElementById('replyDeadline').value = c.replyDeadline;
-    }
-  } catch(e) {
-    investors = [...DEFAULT_INVESTORS];
-    agendas = [...DEFAULT_AGENDAS];
-  }
-}
+// ============================================================
+// 법인 관리
+// ============================================================
+const STAMP_TYPES=['법인인감','사용인감','막도장'];
 
-// ===== UI =====
-function showTab(name) {
-  activeTab = name;
-  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  const navItems = document.querySelectorAll('.nav-item');
-  const idx = ['common','investors','agenda','generate'].indexOf(name);
-  if (navItems[idx + 2]) navItems[idx + 2].classList.add('active'); // +2 for section header
-  if (name === 'generate') renderGenerate();
-}
-
-function toast(msg, dur=2200) {
-  const bar = document.getElementById('statusBar');
-  document.getElementById('statusText').textContent = msg;
-  bar.classList.add('show');
-  setTimeout(() => bar.classList.remove('show'), dur);
-}
-
-function esc(s) {
-  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-
-// ===== INVESTORS =====
-function renderInvestors() {
-  const el = document.getElementById('investorList');
-  if (!investors.length) {
-    el.innerHTML = '<div style="padding:20px;color:#888;font-size:13px">투자사가 없습니다. 위에서 추가해주세요.</div>';
-    return;
-  }
-  el.innerHTML = investors.map(inv => `
-    <div class="inv-item" id="inv-${inv.id}">
-      <div class="inv-header">
-        <input type="checkbox" class="inv-check" ${inv.selected ? 'checked' : ''} onchange="toggleInv(${inv.id},this.checked)">
-        <div class="inv-name-block">
-          <div class="inv-name">${esc(inv.name)}</div>
-          <div class="inv-meta">${inv.ceo ? esc(inv.ceo)+' 대표' : '대표이사 미입력'} · 계약일 ${inv.contractDate || '미설정'}</div>
+function renderCorps(){
+  const el=document.getElementById('corpList');
+  if(!corps.length){ el.innerHTML='<div style="padding:18px;color:var(--text3);font-size:12px">등록된 법인이 없습니다.</div>'; return; }
+  el.innerHTML=corps.map(c=>`
+    <div class="ci" id="ci-${c.id}">
+      <div class="ci-hd">
+        <div style="flex:1">
+          <div class="ci-name">${esc(c.name)||'(이름 미입력)'}</div>
+          <div class="ci-sub">대표 ${esc(c.ceo)||'-'} · ${esc(c.bizNo)||'사업자번호 미입력'}</div>
         </div>
+        <button class="btn btn-sm" onclick="toggleCorp(${c.id})">편집</button>
+        <button class="btn btn-sm btn-d" onclick="removeCorp(${c.id})">삭제</button>
+      </div>
+      <div class="ci-body" id="cb-${c.id}">
+        <div class="fg fg2">
+          <div class="f"><label>법인명</label><input value="${esc(c.name)}" oninput="updCorp(${c.id},'name',this.value)"></div>
+          <div class="f"><label>대표이사</label><input value="${esc(c.ceo)}" oninput="updCorp(${c.id},'ceo',this.value)"></div>
+        </div>
+        <div class="f mt8"><label>주소</label><input value="${esc(c.addr)}" oninput="updCorp(${c.id},'addr',this.value)"></div>
+        <div class="fg fg2 mt8">
+          <div class="f"><label>사업자등록번호</label><input value="${esc(c.bizNo)}" oninput="updCorp(${c.id},'bizNo',this.value)" placeholder="000-00-00000"></div>
+          <div class="f"><label>법인등록번호</label><input value="${esc(c.corpNo)}" oninput="updCorp(${c.id},'corpNo',this.value)" placeholder="000000-0000000"></div>
+        </div>
+        <hr class="sdiv">
+        <div class="ct">도장 관리</div>
+        <div class="fg fg3 mt8">
+          ${STAMP_TYPES.map(t=>`
+            <div>
+              <div style="font-size:11px;font-weight:500;color:var(--text2);margin-bottom:6px">${t}</div>
+              <div class="stamp-zone" id="sz-${c.id}-${t}" onclick="">
+                <input type="file" accept="image/*" onchange="uploadStamp(${c.id},'${t}',this)">
+                ${loadStamp(c.id,t)?`<img src="${loadStamp(c.id,t)}" alt="${t}"><div class="ph2">${t}</div>`:`<div style="font-size:24px;color:var(--text3)">+</div><div class="ph2">${t} 업로드</div>`}
+              </div>
+              ${loadStamp(c.id,t)?`<button class="btn btn-sm btn-d" style="margin-top:4px;width:100%" onclick="delStamp(${c.id},'${t}')">삭제</button>`:''}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addCorp(){
+  const id=Date.now();
+  corps.push({id,name:'',ceo:'',addr:'',bizNo:'',corpNo:''});
+  save(KEYS.corps,corps); renderCorps(); setTimeout(()=>toggleCorp(id),50); toast('법인 추가됨');
+}
+function removeCorp(id){
+  if(!confirm('삭제하시겠습니까?'))return;
+  corps=corps.filter(c=>c.id!==id); save(KEYS.corps,corps); renderCorps(); toast('삭제됨');
+}
+function toggleCorp(id){ document.getElementById('cb-'+id)?.classList.toggle('open'); }
+function updCorp(id,f,v){
+  const c=corps.find(c=>c.id===id); if(c){c[f]=v;save(KEYS.corps,corps);}
+  if(f==='name'){ const el=document.querySelector(`#ci-${id} .ci-name`); if(el)el.textContent=v||'(이름 미입력)'; }
+  if(f==='ceo'||f==='bizNo'){ const el=document.querySelector(`#ci-${id} .ci-sub`); const c2=corps.find(c=>c.id===id); if(el&&c2)el.textContent=`대표 ${c2.ceo||'-'} · ${c2.bizNo||'사업자번호 미입력'}`; }
+}
+function uploadStamp(corpId,type,input){
+  const file=input.files[0]; if(!file)return;
+  if(file.size>500000){ toast('⚠ 파일이 너무 큽니다 (500KB 이하)'); return; }
+  const r=new FileReader();
+  r.onload=e=>{ saveStamp(corpId,type,e.target.result); renderCorps(); setTimeout(()=>{ const cb=document.getElementById('cb-'+corpId); if(cb)cb.classList.add('open'); },50); toast(`${type} 저장됨`); };
+  r.readAsDataURL(file);
+}
+function delStamp(corpId,type){ if(!confirm('도장을 삭제하시겠습니까?'))return; removeStamp(corpId,type); renderCorps(); setTimeout(()=>{ const cb=document.getElementById('cb-'+corpId); if(cb)cb.classList.add('open'); },50); toast('삭제됨'); }
+
+function getStampOptions(corpId){
+  if(!corpId)return '';
+  const corp=corps.find(c=>c.id===parseInt(corpId));
+  if(!corp)return '';
+  return STAMP_TYPES.map(t=>{
+    const img=loadStamp(corp.id,t);
+    return img?`<option value="${corp.id}_${t}">${corp.name} - ${t}</option>`:'';
+  }).join('');
+}
+
+// ============================================================
+// 경영사항 동의요청
+// ============================================================
+const DEFAULT_INV=[
+  {id:1,name:"500코리아Ⅲ 투자조합",addr:"서울특별시 강남구 선릉로 428, 12층 104호(대치동)",ceo:"김경민",contractDate:"2025-06-24",contractRef:"주주간계약서 제3조(경영사항에 대한 동의권)",selected:true},
+  {id:2,name:"뉴본한세예스24 라이징스타2호 투자조합",addr:"서울특별시 강남구 역삼로73길 5, B1층",ceo:"이근웅",contractDate:"2026-02-04",contractRef:"투자계약서 제8조(경영사항에 대한 동의권)",selected:true},
+  {id:3,name:"두나무앤파트너스 주식회사",addr:"서울특별시 서초구 강남대로 369, 6층(서초동, 디에프타워)",ceo:"이강준",contractDate:"2025-06-24",contractRef:"주주간계약서 제3조(경영사항에 대한 동의권)",selected:true},
+  {id:4,name:"딜라이트 킴벤처 투자조합 제1호",addr:"서울특별시 서초구 강남대로 53길 8, 10층 2호",ceo:"김현성",contractDate:"2026-03-09",contractRef:"주주간계약서 제2조(경영사항에 대한 동의권 및 협의권)",selected:true},
+  {id:5,name:"시흥창업투자펀드 2호",addr:"경기도 시흥시 산기대학로 237, 8층 804호(정왕동, 한국공학대학교)",ceo:"",contractDate:"2025-09-15",contractRef:"투자계약서 제8조(경영사항에 대한 동의권)",selected:true},
+];
+
+function refreshConsCorpSel(){
+  const el=document.getElementById('c_corpSel'); if(!el)return;
+  el.innerHTML='<option value="">직접 입력</option>'+corps.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+}
+function applyConsentCorp(){
+  const id=parseInt(document.getElementById('c_corpSel').value);
+  const c=corps.find(c=>c.id===id); if(!c)return;
+  document.getElementById('c_ceo').value=c.ceo||'';
+  document.getElementById('c_addr').value=c.addr||'';
+}
+
+function renderConsInvestors(){
+  const el=document.getElementById('c_invList'); if(!el)return;
+  if(!investors.length){ el.innerHTML='<div style="padding:14px;color:var(--text3);font-size:12px">투자사 없음</div>'; return; }
+  el.innerHTML=investors.map(inv=>`
+    <div class="ci" id="cinv-${inv.id}">
+      <div class="ci-hd">
+        <input type="checkbox" ${inv.selected?'checked':''} onchange="toggleInv(${inv.id},this.checked)" style="flex-shrink:0;accent-color:var(--text)">
+        <div style="flex:1"><div class="ci-name">${esc(inv.name)}</div><div class="ci-sub">${inv.ceo?esc(inv.ceo)+' 대표':'대표이사 미입력'} · ${inv.contractDate||'계약일 미설정'}</div></div>
         <button class="btn btn-sm" onclick="toggleInvEdit(${inv.id})">편집</button>
-        <button class="btn btn-sm btn-danger" onclick="removeInvestor(${inv.id})">삭제</button>
+        <button class="btn btn-sm btn-d" onclick="removeInvestor(${inv.id})">삭제</button>
       </div>
-      <div class="inv-body" id="invbody-${inv.id}">
-        <div class="form-grid form-grid-2">
-          <div class="field"><label>투자조합명</label><input value="${esc(inv.name)}" oninput="updateInv(${inv.id},'name',this.value)"></div>
-          <div class="field"><label>대표이사</label><input value="${esc(inv.ceo)}" oninput="updateInv(${inv.id},'ceo',this.value)"></div>
+      <div class="ci-body" id="cie-${inv.id}">
+        <div class="fg fg2 mt8">
+          <div class="f"><label>투자조합명</label><input value="${esc(inv.name)}" oninput="updInv(${inv.id},'name',this.value)"></div>
+          <div class="f"><label>대표이사</label><input value="${esc(inv.ceo)}" oninput="updInv(${inv.id},'ceo',this.value)"></div>
         </div>
-        <div class="field mt8"><label>주소</label><input value="${esc(inv.addr)}" oninput="updateInv(${inv.id},'addr',this.value)"></div>
-        <div class="form-grid form-grid-2 mt8">
-          <div class="field"><label>계약서 체결일</label><input type="date" value="${inv.contractDate}" oninput="updateInv(${inv.id},'contractDate',this.value)"></div>
-          <div class="field"><label>계약서 조항 (동의서 문구)</label><input value="${esc(inv.contractRef||'')} " oninput="updateInv(${inv.id},'contractRef',this.value)" placeholder="주주간계약서 제3조(경영사항에 대한 동의권)"></div>
+        <div class="f mt8"><label>주소</label><input value="${esc(inv.addr)}" oninput="updInv(${inv.id},'addr',this.value)"></div>
+        <div class="fg fg2 mt8">
+          <div class="f"><label>계약서 체결일</label><input type="date" value="${inv.contractDate}" oninput="updInv(${inv.id},'contractDate',this.value)"></div>
+          <div class="f"><label>계약서 조항</label><input value="${esc(inv.contractRef||'')}" oninput="updInv(${inv.id},'contractRef',this.value)"></div>
         </div>
       </div>
     </div>
   `).join('');
 }
+function addInvestor(){ const id=Date.now(); investors.push({id,name:'새 투자조합',addr:'',ceo:'',contractDate:'',contractRef:'',selected:true}); save(KEYS.investors,investors); renderConsInvestors(); updateConsInfo(); setTimeout(()=>toggleInvEdit(id),50); toast('투자사 추가됨'); }
+function removeInvestor(id){ if(!confirm('삭제?'))return; investors=investors.filter(i=>i.id!==id); save(KEYS.investors,investors); renderConsInvestors(); updateConsInfo(); toast('삭제됨'); }
+function toggleInv(id,v){ const i=investors.find(i=>i.id===id); if(i){i.selected=v;save(KEYS.investors,investors);} updateConsInfo(); }
+function toggleInvEdit(id){ document.getElementById('cie-'+id)?.classList.toggle('open'); }
+function updInv(id,f,v){ const i=investors.find(i=>i.id===id); if(i){i[f]=v;save(KEYS.investors,investors);} renderConsInvestors(); }
+function cCheckAll(v){ investors.forEach(i=>i.selected=v); save(KEYS.investors,investors); renderConsInvestors(); updateConsInfo(); }
+function updateConsInfo(){ const el=document.getElementById('c_info'); if(!el)return; const sel=investors.filter(i=>i.selected); el.innerHTML=`투자사 <strong>${investors.length}개</strong> 등록 · <strong style="color:var(--success)">${sel.length}개</strong> 선택`; }
 
-function addInvestor() {
-  const id = Date.now();
-  investors.push({ id, name: "새 투자조합", addr: "", ceo: "", contractDate: "", contractRef: "", selected: true });
-  save(); renderInvestors();
-  setTimeout(() => toggleInvEdit(id), 50);
-  toast('투자사 추가됨');
-}
-
-function removeInvestor(id) {
-  if (!confirm('삭제하시겠습니까?')) return;
-  investors = investors.filter(i => i.id !== id);
-  save(); renderInvestors();
-  toast('삭제됨');
-}
-
-function toggleInv(id, val) {
-  const i = investors.find(i => i.id === id);
-  if (i) i.selected = val;
-  save();
-}
-
-function updateInv(id, field, val) {
-  const i = investors.find(i => i.id === id);
-  if (i) { i[field] = val; save(); }
-  // live update name/meta display
-  const block = document.querySelector(`#inv-${id} .inv-name`);
-  const meta = document.querySelector(`#inv-${id} .inv-meta`);
-  if (block && field === 'name') block.textContent = val;
-  if (meta) {
-    const inv2 = investors.find(i => i.id === id);
-    if (inv2) meta.textContent = `${inv2.ceo ? inv2.ceo+' 대표' : '대표이사 미입력'} · 계약일 ${inv2.contractDate || '미설정'}`;
-  }
-}
-
-function toggleInvEdit(id) {
-  const el = document.getElementById('invbody-' + id);
-  if (el) el.classList.toggle('open');
-}
-
-// ===== AGENDAS =====
-function renderAgendas() {
-  const el = document.getElementById('agendaList');
-  if (!agendas.length) {
-    el.innerHTML = '<div style="padding:20px;color:#888;font-size:13px">안건이 없습니다. 위에서 추가해주세요.</div>';
-    return;
-  }
-  el.innerHTML = agendas.map((a, i) => `
-    <div class="agenda-item">
-      <div class="agenda-label">
-        <span>제${i+1}호 안건</span>
-        <button class="btn btn-sm btn-danger" onclick="removeAgenda(${a.id})">삭제</button>
-      </div>
-      <div class="field">
-        <label>안건 제목</label>
-        <input value="${esc(a.title)}" oninput="updateAgenda(${a.id},'title',this.value)" placeholder="예: 신주식 발행의 건">
-      </div>
-      <div class="field mt8">
-        <label>안건 내용 (동의 요청서에 그대로 들어갑니다)</label>
-        <textarea oninput="updateAgenda(${a.id},'content',this.value)" placeholder="안건 상세 내용을 입력하세요...">${esc(a.content)}</textarea>
-      </div>
+function renderConsAgendas(){
+  const el=document.getElementById('c_agendaList'); if(!el)return;
+  if(!consAgendas.length){ el.innerHTML='<div style="padding:10px;color:var(--text3);font-size:12px">안건 없음</div>'; return; }
+  el.innerHTML=consAgendas.map((a,i)=>`
+    <div class="ai">
+      <div class="ai-lbl"><span>제${i+1}호 안건</span><button class="btn btn-sm btn-d" onclick="removeConsAgenda(${a.id})">삭제</button></div>
+      <div class="f"><label>안건 제목</label><input value="${esc(a.title)}" oninput="updConsAgenda(${a.id},'title',this.value)"></div>
+      <div class="f mt8"><label>안건 내용</label><textarea oninput="updConsAgenda(${a.id},'content',this.value)">${esc(a.content)}</textarea></div>
     </div>
   `).join('');
 }
-
-function addAgenda() {
-  agendas.push({ id: Date.now(), title: "새 안건", content: "" });
-  save(); renderAgendas();
-  toast('안건 추가됨');
-}
-
-function removeAgenda(id) {
-  agendas = agendas.filter(a => a.id !== id);
-  save(); renderAgendas();
-  toast('삭제됨');
-}
-
-function updateAgenda(id, field, val) {
-  const a = agendas.find(a => a.id === id);
-  if (a) { a[field] = val; save(); }
-}
-
-// ===== GENERATE =====
-function renderGenerate() {
-  const selected = investors.filter(i => i.selected);
-  const info = document.getElementById('actionInfo');
-  info.innerHTML = `투자사 <strong>${investors.length}개</strong> 등록 · <strong style="color:#1a6b3a">${selected.length}개</strong> 선택 · 안건 <strong>${agendas.length}개</strong>`;
-
-  const el = document.getElementById('generateList');
-  el.innerHTML = investors.map(inv => `
-    <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:white;border:1px solid #e2e0d8;border-radius:8px;margin-bottom:6px">
-      <input type="checkbox" class="inv-check" id="gen-${inv.id}" ${inv.selected ? 'checked' : ''} onchange="toggleInv(${inv.id},this.checked);renderGenerate()">
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600">${esc(inv.name)}</div>
-        <div style="font-size:11px;color:#9b9a92">${esc(inv.ceo)} 대표 · ${inv.addr ? inv.addr.substring(0,30)+'...' : '주소 미입력'}</div>
-      </div>
-      <span class="chip ${inv.selected ? 'chip-selected' : ''}">${inv.selected ? '선택됨' : '제외'}</span>
-      <button class="btn btn-sm" onclick="generateOne(${inv.id})">개별 생성 ↗</button>
-    </div>
-  `).join('');
-}
-
-function checkAll(val) {
-  investors.forEach(i => i.selected = val);
-  save(); renderGenerate();
-}
-
-function getCommon() {
+function addConsAgenda(){ consAgendas.push({id:Date.now(),title:'새 안건',content:''}); save(KEYS.consAgendas,consAgendas); renderConsAgendas(); toast('안건 추가됨'); }
+function removeConsAgenda(id){ consAgendas=consAgendas.filter(a=>a.id!==id); save(KEYS.consAgendas,consAgendas); renderConsAgendas(); }
+function updConsAgenda(id,f,v){ const a=consAgendas.find(a=>a.id===id); if(a){a[f]=v;save(KEYS.consAgendas,consAgendas);} }
+function saveConsCommon(){ const c=getConsCommon(); try{localStorage.setItem(KEYS.common,JSON.stringify(c));}catch(e){} }
+function getConsCommon(){
   return {
-    docNum: document.getElementById('docNum').value,
-    docDate: document.getElementById('docDate').value,
-    replyDeadline: document.getElementById('replyDeadline').value,
-    replyEmail: document.getElementById('replyEmail').value,
-    senderCompany: document.getElementById('senderCompany').value,
-    senderCeo: document.getElementById('senderCeo').value,
-    senderAddr: document.getElementById('senderAddr').value,
+    docNum:document.getElementById('c_docNum')?.value||'',
+    docDate:document.getElementById('c_docDate')?.value||'',
+    replyDl:document.getElementById('c_replyDl')?.value||'',
+    email:document.getElementById('c_email')?.value||'',
+    ceo:document.getElementById('c_ceo')?.value||'',
+    addr:document.getElementById('c_addr')?.value||'',
   };
 }
 
-function fmtDate(dateStr) {
-  if (!dateStr) return '　　　년 　　월 　　일';
-  const d = new Date(dateStr);
-  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
+function genConsent(){
+  const sel=investors.filter(i=>i.selected);
+  if(!sel.length){alert('선택된 투자사가 없습니다.');return;}
+  if(!consAgendas.length){alert('안건을 입력해주세요.');return;}
+  const common=getConsCommon();
+  const corpName=document.getElementById('c_corpSel')?.value ? corps.find(c=>c.id===parseInt(document.getElementById('c_corpSel').value))?.name||common.addr : common.addr;
+  const senderName = (() => { const sel2=document.getElementById('c_corpSel'); if(sel2&&sel2.value){ const c=corps.find(c=>c.id===parseInt(sel2.value)); return c?c.name:common.addr; } return common.addr||'주식회사 유쾌한프로젝트'; })();
+  const senderNameFinal = (() => { const sel2=document.getElementById('c_corpSel'); if(sel2&&sel2.value){ const c=corps.find(c=>c.id===parseInt(sel2.value)); if(c)return c.name; } const el=document.getElementById('c_addr'); return el?el.value:''; })();
+  toast(`${sel.length}개 문서 생성 중...`, 5000);
+  sel.forEach((inv,i)=>{
+    setTimeout(()=>{
+      const w=window.open('','_blank');
+      if(w){ w.document.write(buildConsentHtml(inv,common)); w.document.close(); setTimeout(()=>{w.focus();w.print();},700); }
+    }, i*900);
+  });
 }
-function fmtDateDay(dateStr) {
-  if (!dateStr) return '';
-  const d = new Date(dateStr);
-  const days = ['일','월','화','수','목','금','토'];
-  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일(${days[d.getDay()]})`;
-}
 
-function buildHtml(inv, common) {
-  const aHtml = agendas.map((a,i) => `
-    <div style="margin-bottom:20px">
-      <p style="font-weight:bold;margin-bottom:8px;font-size:10.5pt">제${i+1}호 안건: ${a.title}</p>
-      <p style="white-space:pre-line;line-height:1.9;font-size:10pt">${a.content}</p>
-    </div>
-  `).join('');
-
-  const ceoSpaced = common.senderCeo.split('').join(' ');
-  const invCeoSpaced = inv.ceo.split('').join(' ');
-
-  return `<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<title>경영사항 동의요청 - ${inv.name}</title>
-<style>
-  @page { size: A4; margin: 25mm 22mm; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; font-size:10pt; color:#111; line-height:1.7; }
-  .page { page-break-after: always; }
-  .page:last-child { page-break-after: avoid; }
-  p { margin-bottom: 10px; }
-  strong { font-weight: 700; }
-</style>
-</head>
-<body>
-
-<!-- 공문 -->
+function buildConsentHtml(inv,cm){
+  const sender = (() => { const sel=document.getElementById('c_corpSel'); if(sel&&sel.value){ const c=corps.find(c=>c.id===parseInt(sel.value)); if(c)return c; } return {name:'주식회사 유쾌한프로젝트',ceo:cm.ceo,addr:cm.addr}; })();
+  const sName=sender.name||'주식회사 유쾌한프로젝트';
+  const sCeo=sender.ceo||cm.ceo||'';
+  const sAddr=sender.addr||cm.addr||'';
+  const aHtml=consAgendas.map((a,i)=>`<div style="margin-bottom:18px"><p style="font-weight:bold;margin-bottom:7px">제${i+1}호 안건: ${a.title}</p><p style="white-space:pre-line;line-height:1.9">${a.content}</p></div>`).join('');
+  const ceoSp=sCeo.split('').join(' ');
+  const invCeoSp=(inv.ceo||'').split('').join(' ');
+  return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>경영사항동의요청-${inv.name}</title>
+<style>@page{size:A4;margin:25mm 22mm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:10pt;color:#111;line-height:1.7;}.page{page-break-after:always;}.page:last-child{page-break-after:avoid;}p{margin-bottom:10px;}strong{font-weight:700;}</style>
+</head><body>
 <div class="page">
   <div style="font-size:26pt;font-weight:900;line-height:1.15;margin-bottom:22px;color:#1a1a1a">유쾌한<br>프로젝트</div>
   <hr style="border:none;border-top:3px solid #111;margin-bottom:22px">
   <table style="width:100%;border-collapse:collapse;margin-bottom:22px">
-    <tr><td style="width:55px;padding:4px 0;color:#555;font-size:10pt">번&nbsp;&nbsp;&nbsp;호</td><td style="padding:4px 0;font-size:10pt">: ${common.docNum}</td></tr>
-    <tr><td style="padding:4px 0;color:#555;font-size:10pt">수&nbsp;&nbsp;&nbsp;신</td><td style="padding:4px 0;font-size:10pt">: ${inv.name} 귀중</td></tr>
-    <tr><td style="padding:4px 0;color:#555;font-size:10pt">참&nbsp;&nbsp;&nbsp;조</td><td style="padding:4px 0;font-size:10pt">: </td></tr>
-    <tr><td style="padding:4px 0;color:#555;font-size:10pt">일&nbsp;&nbsp;&nbsp;자</td><td style="padding:4px 0;font-size:10pt">: ${fmtDate(common.docDate)}</td></tr>
-    <tr><td style="padding:4px 0;color:#555;font-size:10pt">제&nbsp;&nbsp;&nbsp;목</td><td style="padding:4px 0;font-size:10pt">: 경영사항 동의 요청의 건</td></tr>
+    <tr><td style="width:55px;padding:4px 0;color:#555">번&nbsp;&nbsp;&nbsp;호</td><td style="padding:4px 0">: ${cm.docNum}</td></tr>
+    <tr><td style="padding:4px 0;color:#555">수&nbsp;&nbsp;&nbsp;신</td><td style="padding:4px 0">: ${inv.name} 귀중</td></tr>
+    <tr><td style="padding:4px 0;color:#555">참&nbsp;&nbsp;&nbsp;조</td><td style="padding:4px 0">: </td></tr>
+    <tr><td style="padding:4px 0;color:#555">일&nbsp;&nbsp;&nbsp;자</td><td style="padding:4px 0">: ${fmtDate(cm.docDate)}</td></tr>
+    <tr><td style="padding:4px 0;color:#555">제&nbsp;&nbsp;&nbsp;목</td><td style="padding:4px 0">: 경영사항 동의 요청의 건</td></tr>
   </table>
   <p><strong>1. 귀사의 무궁한 발전을 기원합니다.</strong></p>
   <p><strong>2. 당사는 정기주주총회 안건에 대해 귀사의 사전 동의를 요청드리오니 검토 부탁드립니다.</strong></p>
   <p><strong>3. 동의 요청 안건의 세부 내용은 첨부된 경영사항 동의 요청서를 참조하여 주시기 바라며, 검토 후 동의서에 서명·날인하시어 아래 기한 내 이메일로 회신하여 주시기 바랍니다.</strong></p>
   <div style="margin:18px 0;padding:14px 18px;border-left:3px solid #111;background:#f8f8f8">
-    <p style="margin-bottom:5px">▪ 회신 기한: ${fmtDateDay(common.replyDeadline)} 까지</p>
-    <p style="margin-bottom:5px">▪ 회신 이메일: ${common.replyEmail}</p>
+    <p style="margin-bottom:5px">▪ 회신 기한: ${fmtDateDay(cm.replyDl)} 까지</p>
+    <p style="margin-bottom:5px">▪ 회신 이메일: ${cm.email}</p>
     <p style="margin-bottom:0">▪ 첨부 서류: 경영사항 동의 요청의 건 1부</p>
   </div>
   <p><strong>4. 추가 문의 사항은 연락 주시기 바랍니다.</strong></p>
   <div style="text-align:right;margin-top:70px">
-    <div style="font-size:11.5pt;font-weight:700;margin-bottom:6px">${common.senderCompany}</div>
-    <div style="font-size:10pt">대&nbsp;표&nbsp;이&nbsp;사&nbsp;&nbsp;${ceoSpaced}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(인)</div>
+    <div style="font-size:11.5pt;font-weight:700;margin-bottom:6px">${sName}</div>
+    <div>대&nbsp;표&nbsp;이&nbsp;사&nbsp;&nbsp;${ceoSp}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(인)</div>
   </div>
 </div>
-
-<!-- 동의요청서 -->
 <div class="page">
   <div style="text-align:center;font-size:15pt;font-weight:700;margin-bottom:28px">경영사항 동의 요청의 건</div>
   <p><strong>수신:</strong> ${inv.name} 귀중</p>
-  <p><strong>발신:</strong> ${common.senderCompany} 대표이사 ${common.senderCeo}</p>
-  <p style="margin-bottom:20px"><strong>작성일:</strong> ${fmtDate(common.docDate)}</p>
+  <p><strong>발신:</strong> ${sName} 대표이사 ${sCeo}</p>
+  <p style="margin-bottom:20px"><strong>작성일:</strong> ${fmtDate(cm.docDate)}</p>
   <p>1. 귀사의 무궁한 발전을 기원합니다.</p>
-  <p style="margin-bottom:20px">2. ${common.senderCompany}(이하 '당사')와 귀사 간에 ${fmtDate(inv.contractDate)}에 체결된 ${inv.contractRef || '주주간계약서 제3조(경영사항에 대한 동의권)'}에 의거하여, 다음 각 호의 사항에 대한 사전 서면 동의를 요청드립니다.</p>
+  <p style="margin-bottom:20px">2. ${sName}(이하 '당사')와 귀사 간에 ${fmtDate(inv.contractDate)}에 체결된 ${inv.contractRef||'주주간계약서 제3조(경영사항에 대한 동의권)'}에 의거하여, 다음 각 호의 사항에 대한 사전 서면 동의를 요청드립니다.</p>
   ${aHtml}
   <div style="text-align:right;margin-top:50px">
-    <div style="font-size:11pt;font-weight:700;margin-bottom:4px">${common.senderCompany}</div>
-    <div style="font-size:9.5pt;margin-bottom:8px">주소: ${common.senderAddr}</div>
-    <div style="font-size:10pt">대표이사&nbsp;&nbsp;${ceoSpaced}&nbsp;&nbsp;&nbsp;(인)</div>
+    <div style="font-size:11pt;font-weight:700;margin-bottom:4px">${sName}</div>
+    <div style="font-size:9.5pt;margin-bottom:8px">주소: ${sAddr}</div>
+    <div>대표이사&nbsp;&nbsp;${ceoSp}&nbsp;&nbsp;&nbsp;(인)</div>
   </div>
 </div>
-
-<!-- 동의서 -->
 <div class="page">
   <div style="text-align:center;font-size:16pt;font-weight:700;margin:50px 0 40px">동&nbsp;&nbsp;&nbsp;의&nbsp;&nbsp;&nbsp;서</div>
-  <p style="line-height:2;margin-bottom:60px">본인은 ${common.senderCompany}의 위 안건에 대하여 ${(inv.contractRef||"주주간계약서 제3조").split("(")[0]}에 따라 모두 동의합니다.</p>
-  <div style="text-align:right;margin-bottom:30px">${fmtDate(common.docDate).replace(/\d+일/, '　　일')}</div>
+  <p style="line-height:2;margin-bottom:60px">본인은 ${sName}의 위 안건에 대하여 ${(inv.contractRef||'주주간계약서 제3조').split('(')[0]}에 따라 모두 동의합니다.</p>
+  <div style="text-align:right;margin-bottom:30px">${fmtDate(cm.docDate).replace(/\d+일/,'　　일')}</div>
   <div style="margin-top:20px">
     <div style="font-size:11pt;font-weight:700;margin-bottom:5px">${inv.name}</div>
     <div style="font-size:9.5pt;margin-bottom:14px">주소: ${inv.addr}</div>
-    <div style="font-size:10pt">대표이사&nbsp;&nbsp;${invCeoSpaced}&nbsp;&nbsp;&nbsp;(인)</div>
+    <div>대표이사&nbsp;&nbsp;${invCeoSp}&nbsp;&nbsp;&nbsp;(인)</div>
+  </div>
+</div>
+</body></html>`;
+}
+
+// ============================================================
+// 위임장
+// ============================================================
+function setProxyType(type, btn){
+  proxyType=type;
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  renderProxyFields(); refreshProxyStamps();
+}
+
+function renderProxyFields(){
+  renderPartyFields('grantor', proxyType.split('→')[0]==='법인');
+  renderPartyFields('grantee', proxyType.split('→')[1]==='법인');
+}
+
+function renderPartyFields(side, isCorp){
+  const el=document.getElementById(`p_${side}Fields`); if(!el)return;
+  const corpOpts=corps.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  if(isCorp){
+    el.innerHTML=`
+      <div class="f"><label>법인 선택</label><select id="p_${side}_corp" onchange="applyProxyCorp('${side}')"><option value="">직접 입력</option>${corpOpts}</select></div>
+      <div class="f mt8"><label>법인명</label><input id="p_${side}_name" placeholder="법인명"></div>
+      <div class="f mt8"><label>사업자등록번호</label><input id="p_${side}_bizno" placeholder="000-00-00000"></div>
+      <div class="f mt8"><label>주소</label><input id="p_${side}_addr"></div>
+      <div class="f mt8"><label>대표이사</label><input id="p_${side}_ceo"></div>
+      <div class="f mt8"><label>연락처</label><input id="p_${side}_tel"></div>
+    `;
+  } else {
+    el.innerHTML=`
+      <div class="f"><label>성명</label><input id="p_${side}_name" placeholder="홍길동"></div>
+      <div class="f mt8"><label>생년월일</label><input id="p_${side}_bizno" placeholder="1990년 1월 1일"></div>
+      <div class="f mt8"><label>주소</label><input id="p_${side}_addr"></div>
+      <div class="f mt8"><label>연락처</label><input id="p_${side}_tel"></div>
+    `;
+  }
+}
+
+function applyProxyCorp(side){
+  const sel=document.getElementById(`p_${side}_corp`); if(!sel)return;
+  const c=corps.find(c=>c.id===parseInt(sel.value)); if(!c)return;
+  const set=(id,v)=>{ const el=document.getElementById(id); if(el)el.value=v; };
+  set(`p_${side}_name`,c.name); set(`p_${side}_bizno`,c.bizNo); set(`p_${side}_addr`,c.addr); set(`p_${side}_ceo`,c.ceo);
+}
+
+function refreshProxyStamps(){
+  const el=document.getElementById('p_stampSel'); if(!el)return;
+  const grantorIsCorp=proxyType.split('→')[0]==='법인';
+  let opts='<option value="">도장 없음 (수기 날인)</option>';
+  if(grantorIsCorp){
+    corps.forEach(c=>{ STAMP_TYPES.forEach(t=>{ const img=loadStamp(c.id,t); if(img) opts+=`<option value="${c.id}_${t}">${esc(c.name)} - ${t}</option>`; }); });
+  }
+  el.innerHTML=opts;
+}
+
+function getProxyParty(side, isCorp){
+  const get=(id)=>document.getElementById(`p_${side}_${id}`)?.value||'';
+  if(isCorp) return {name:get('name'),bizno:get('bizno'),addr:get('addr'),ceo:get('ceo'),tel:get('tel'),isCorp:true};
+  return {name:get('name'),bizno:get('bizno'),addr:get('addr'),tel:get('tel'),isCorp:false};
+}
+
+function genProxy(){
+  const grantorIsCorp=proxyType.split('→')[0]==='법인';
+  const granteeIsCorp=proxyType.split('→')[1]==='법인';
+  const grantor=getProxyParty('grantor',grantorIsCorp);
+  const grantee=getProxyParty('grantee',granteeIsCorp);
+  const content=document.getElementById('p_content')?.value||'';
+  const date=document.getElementById('p_date')?.value||'';
+  const stampSel=document.getElementById('p_stampSel')?.value||'';
+  let stampImg='';
+  if(stampSel){ const [cid,type]=stampSel.split('_'); stampImg=loadStamp(parseInt(cid),type); }
+  const w=window.open('','_blank');
+  if(w){ w.document.write(buildProxyHtml(grantor,grantee,content,date,stampImg)); w.document.close(); setTimeout(()=>{w.focus();w.print();},700); }
+}
+
+function buildProxyHtml(grantor,grantee,content,date,stampImg){
+  const partyTable=(party,label)=>{
+    const rows=party.isCorp ? [
+      ['상&nbsp;&nbsp;&nbsp;&nbsp;호',party.name],
+      ['사업자번호',party.bizno],
+      ['주&nbsp;&nbsp;&nbsp;&nbsp;소',party.addr],
+      ['대 표 이 사',party.ceo],
+      ['연 &nbsp;락 &nbsp;처',party.tel],
+    ] : [
+      ['성&nbsp;&nbsp;&nbsp;&nbsp;명',party.name],
+      ['생 년 월 일',party.bizno],
+      ['주&nbsp;&nbsp;&nbsp;&nbsp;소',party.addr],
+      ['연 &nbsp;락 &nbsp;처',party.tel],
+    ];
+    return `
+      <div style="margin-bottom:20px">
+        <div style="background:#1a1917;color:#fff;padding:7px 14px;font-size:10pt;font-weight:600;letter-spacing:.05em;border-radius:2px 2px 0 0">${label}</div>
+        <table style="width:100%;border-collapse:collapse;border:1px solid #ccc;border-top:none">
+          ${rows.map(([k,v])=>`<tr><td style="padding:8px 14px;width:110px;font-size:9.5pt;color:#555;border-bottom:1px solid #eee;white-space:nowrap">${k}</td><td style="padding:8px 14px;font-size:10pt;border-bottom:1px solid #eee">${v||''}</td></tr>`).join('')}
+        </table>
+      </div>
+    `;
+  };
+  const stampHtml=stampImg?`<img src="${stampImg}" style="width:62px;height:62px;position:absolute;top:-8px;left:calc(50% - 31px);opacity:.88;mix-blend-mode:multiply;" alt="인감">`:
+    `<div style="width:52px;height:52px;border:1px solid #bbb;border-radius:50%;position:absolute;top:2px;left:calc(50% - 26px);display:flex;align-items:center;justify-content:center;font-size:8pt;color:#bbb">(인)</div>`;
+  const sigBlock=(party,label)=>`
+    <div style="flex:1;text-align:center">
+      <div style="font-size:11pt;font-weight:700;margin-bottom:16px">${label}</div>
+      <div style="display:inline-block;text-align:left;position:relative;padding-bottom:10px">
+        <div style="font-size:9.5pt;color:#444;line-height:2">
+          성&nbsp;&nbsp;&nbsp;명: ${party.name||'　　　　　'} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(인)
+        </div>
+        <div style="font-size:9.5pt;color:#444">${party.isCorp?'대표이사':'생년월일'}: ${party.isCorp?party.ceo:party.bizno||'　　　　　'}</div>
+        ${stampHtml}
+      </div>
+    </div>
+  `;
+  return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+<style>
+@page{size:A4;margin:22mm 25mm;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;font-size:10pt;color:#111;line-height:1.7;}
+</style></head><body>
+<div style="text-align:center;margin-bottom:4px">
+  <div style="font-size:26pt;font-weight:900;letter-spacing:.15em;color:#1a1a1a">위&nbsp;&nbsp;&nbsp;임&nbsp;&nbsp;&nbsp;장</div>
+  <div style="font-size:10pt;color:#888;letter-spacing:.2em;margin-top:4px">Letter of Authorization</div>
+</div>
+<hr style="border:none;border-top:2.5px solid #1a1a1a;margin:16px 0 20px">
+${partyTable(grantor,'위임인 (委任人)')}
+${partyTable(grantee,'수임인 (受任人)')}
+<div style="margin-bottom:20px">
+  <div style="background:#1a1917;color:#fff;padding:7px 14px;font-size:10pt;font-weight:600;letter-spacing:.05em;border-radius:2px 2px 0 0">위임 내용</div>
+  <div style="border:1px solid #ccc;border-top:none;padding:16px 14px;min-height:60px;font-size:10pt;line-height:1.9">${content||'　'}</div>
+</div>
+<p style="font-size:9.5pt;color:#444;line-height:1.8;margin-bottom:20px">위임인은 위 사항에 관한 모든 권한을 수임인에게 위임하며, 수임인이 위임 사항에 관하여 행한 일체의 행위에 대하여 이의를 제기하지 아니한다.</p>
+<div style="text-align:center;font-size:11pt;font-weight:600;margin-bottom:30px">${fmtDate(date)}</div>
+<div style="display:flex;justify-content:space-between;padding:0 30px">
+  ${sigBlock(grantor,'위임인')}
+  <div style="width:1px;background:#eee"></div>
+  ${sigBlock(grantee,'수임인')}
+</div>
+</body></html>`;
+}
+
+// ============================================================
+// 주총 소집통지서
+// ============================================================
+function refreshNoticeCorpSel(){
+  const el=document.getElementById('n_corp'); if(!el)return;
+  const cur=el.value;
+  el.innerHTML='<option value="">법인 선택</option>'+corps.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+  if(cur)el.value=cur;
+}
+function applyNoticeCorp(){
+  const id=parseInt(document.getElementById('n_corp').value);
+  const c=corps.find(c=>c.id===id); if(!c)return;
+  const set=(eid,v)=>{ const el=document.getElementById(eid); if(el)el.value=v; };
+  set('n_ceo',c.ceo);
+  refreshNoticeStamps(id);
+}
+function refreshNoticeStamps(corpId){
+  const el=document.getElementById('n_stampSel'); if(!el)return;
+  const cid=corpId||parseInt(document.getElementById('n_corp')?.value)||0;
+  let opts='<option value="">도장 없음 (직인생략)</option>';
+  if(cid){ STAMP_TYPES.forEach(t=>{ const img=loadStamp(cid,t); if(img) opts+=`<option value="${cid}_${t}">${t}</option>`; }); }
+  el.innerHTML=opts;
+}
+
+function renderNoticeAgendas(){
+  const el=document.getElementById('n_agendaList'); if(!el)return;
+  if(!noticeAgendas.length){ el.innerHTML='<div style="padding:10px;color:var(--text3);font-size:12px">안건 없음</div>'; return; }
+  el.innerHTML=noticeAgendas.map((a,i)=>`
+    <div class="ai">
+      <div class="ai-lbl"><span>제${i+1}호 의안</span><button class="btn btn-sm btn-d" onclick="removeNoticeAgenda(${a.id})">삭제</button></div>
+      <div class="fg fg2">
+        <div class="f"><label>안건명</label><input value="${esc(a.title)}" oninput="updNA(${a.id},'title',this.value)"></div>
+        <div class="f"><label>별첨 번호 (없으면 공란)</label><input value="${esc(a.attachRef||'')}" oninput="updNA(${a.id},'attachRef',this.value)" placeholder="예: 별첨1"></div>
+      </div>
+    </div>
+  `).join('');
+}
+function addNoticeAgenda(){ noticeAgendas.push({id:Date.now(),title:'',attachRef:''}); renderNoticeAgendas(); toast('안건 추가됨'); }
+function removeNoticeAgenda(id){ noticeAgendas=noticeAgendas.filter(a=>a.id!==id); renderNoticeAgendas(); }
+function updNA(id,f,v){ const a=noticeAgendas.find(a=>a.id===id); if(a)a[f]=v; }
+
+function renderAttachments(){
+  const el=document.getElementById('n_attachList'); if(!el)return;
+  if(!attachments.length){ el.innerHTML='<div style="padding:10px;color:var(--text3);font-size:12px">별첨 없음</div>'; return; }
+  el.innerHTML=attachments.map((a,i)=>`
+    <div class="ai">
+      <div class="ai-lbl"><span>별첨${i+1}</span><button class="btn btn-sm btn-d" onclick="removeAttach(${a.id})">삭제</button></div>
+      <div class="f"><label>별첨 제목</label><input value="${esc(a.title)}" oninput="updAt(${a.id},'title',this.value)"></div>
+      <div class="f mt8"><label>내용</label><textarea oninput="updAt(${a.id},'content',this.value)">${esc(a.content)}</textarea></div>
+    </div>
+  `).join('');
+}
+function addAttachment(){ attachments.push({id:Date.now(),title:'',content:''}); renderAttachments(); toast('별첨 추가됨'); }
+function removeAttach(id){ attachments=attachments.filter(a=>a.id!==id); renderAttachments(); }
+function updAt(id,f,v){ const a=attachments.find(a=>a.id===id); if(a)a[f]=v; }
+
+function genNotice(){
+  const corpId=parseInt(document.getElementById('n_corp')?.value);
+  const corp=corps.find(c=>c.id===corpId);
+  const type=document.getElementById('n_type')?.value||'정기';
+  const date=document.getElementById('n_date')?.value||'';
+  const time=document.getElementById('n_time')?.value||'09:00';
+  const noticeDate=document.getElementById('n_noticeDate')?.value||'';
+  const location=document.getElementById('n_location')?.value||'';
+  const ceo=document.getElementById('n_ceo')?.value||'';
+  const stampSel=document.getElementById('n_stampSel')?.value||'';
+  let stampImg='';
+  if(stampSel){ const [cid,t]=stampSel.split('_'); stampImg=loadStamp(parseInt(cid),t); }
+  if(!date){alert('개최일을 입력해주세요.');return;}
+  const w=window.open('','_blank');
+  if(w){ w.document.write(buildNoticeHtml(corp,type,date,time,noticeDate,location,ceo,stampImg)); w.document.close(); setTimeout(()=>{w.focus();w.print();},700); }
+}
+
+function buildNoticeHtml(corp,type,date,time,noticeDate,location,ceo,stampImg){
+  const corpName=corp?corp.name:'주식회사 ○○○';
+  const corpAddr=corp?corp.addr:'';
+  const [h,m]=(time||'09:00').split(':');
+  const dateStr=fmtDate(date);
+  const noticeDateStr=fmtDate(noticeDate);
+  const agendaRows=noticeAgendas.map((a,i)=>`제${i+1}호 의안 – ${a.title}${a.attachRef?` (${a.attachRef})`:''}`.trim()).join('\n');
+  const stampHtml=stampImg?`<img src="${stampImg}" style="width:58px;height:58px;position:absolute;top:-5px;right:-15px;opacity:.88;mix-blend-mode:multiply;" alt="인감">`:'';
+  const ceoSpaced=ceo.split('').join(' ');
+  const attachPages=attachments.map((a,i)=>`
+    <div style="page-break-before:always;padding-top:10mm">
+      <div style="text-align:center;font-size:13pt;font-weight:700;margin-bottom:20px">별 첨 ${i+1}</div>
+      <div style="font-size:12pt;font-weight:700;margin-bottom:12px">${a.title}</div>
+      <div style="white-space:pre-line;font-size:10pt;line-height:1.9">${a.content}</div>
+    </div>
+  `).join('');
+
+  return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+<style>
+@page{size:A4;margin:25mm 22mm;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif;font-size:10.5pt;color:#111;line-height:1.85;}
+.tbl{width:100%;border-collapse:collapse;}
+.tbl td{padding:9px 14px;border:1px solid #ccc;vertical-align:top;}
+.tbl .lbl{width:80px;background:#f5f5f5;font-weight:600;text-align:center;white-space:nowrap;}
+</style></head><body>
+
+<div style="text-align:center;font-size:18pt;font-weight:900;letter-spacing:.08em;margin-bottom:22px">주주총회 소집 통지서</div>
+
+<p style="margin-bottom:16px">${corpName} 주주 귀하</p>
+<p style="margin-bottom:24px">${corpName}의 ${type}주주총회를 아래와 같이 개최하오니 부디 참석하여 고견을 주시기 바랍니다.</p>
+
+<table class="tbl" style="margin-bottom:28px">
+  <tr>
+    <td class="lbl">일 &nbsp; 시</td>
+    <td>${dateStr} 오전 ${parseInt(h)}시 ${m==='00'?'':parseInt(m)+'분'}</td>
+  </tr>
+  <tr>
+    <td class="lbl">장 &nbsp; 소</td>
+    <td>${location}</td>
+  </tr>
+  <tr>
+    <td class="lbl">안 &nbsp; 건</td>
+    <td style="white-space:pre-line">${agendaRows||'(안건 미입력)'}</td>
+  </tr>
+</table>
+
+<div style="text-align:right;margin-bottom:28px">${noticeDateStr}</div>
+
+<div style="text-align:right">
+  <div style="font-size:11pt;font-weight:700;margin-bottom:4px">${corpName}</div>
+  <div style="font-size:9.5pt;color:#555;margin-bottom:10px">${corpAddr}</div>
+  <div style="display:inline-block;position:relative">
+    <span style="font-size:10.5pt">대표이사 &nbsp; ${ceoSpaced} &nbsp;&nbsp; (직인생략)</span>
+    ${stampHtml}
   </div>
 </div>
 
-</body>
-</html>`;
+${attachPages}
+</body></html>`;
 }
 
-function generateOne(id) {
-  const inv = investors.find(i => i.id === id);
-  if (!inv) return;
-  if (!agendas.length) { alert('안건을 먼저 입력해주세요.'); return; }
-  const common = getCommon();
-  const w = window.open('', '_blank');
-  if (w) {
-    w.document.write(buildHtml(inv, common));
-    w.document.close();
-    setTimeout(() => { w.focus(); w.print(); }, 700);
+// ============================================================
+// INIT
+// ============================================================
+function initDates(){
+  const today=new Date(); const fmt=d=>d.toISOString().split('T')[0];
+  const dl=new Date(today); dl.setDate(dl.getDate()+7);
+  const dEl=document.getElementById('c_docDate'); if(dEl&&!dEl.value)dEl.value=fmt(today);
+  const rEl=document.getElementById('c_replyDl'); if(rEl&&!rEl.value)rEl.value=fmt(dl);
+  const pEl=document.getElementById('p_date'); if(pEl&&!pEl.value)pEl.value=fmt(today);
+  const nEl=document.getElementById('n_date'); if(nEl&&!nEl.value)nEl.value=fmt(today);
+  const nnEl=document.getElementById('n_noticeDate'); if(nnEl&&!nnEl.value)nnEl.value=fmt(today);
+}
+
+function loadAll(){
+  corps=load(KEYS.corps)||[];
+  investors=load(KEYS.investors)||[...DEFAULT_INV];
+  consAgendas=load(KEYS.consAgendas)||[];
+  noticeAgendas=[];
+  attachments=[];
+
+  // Load common
+  const cm=load(KEYS.common);
+  if(cm){
+    const s=(id,v)=>{ const el=document.getElementById(id); if(el&&v)el.value=v; };
+    s('c_docNum',cm.docNum); s('c_docDate',cm.docDate); s('c_replyDl',cm.replyDl);
+    s('c_email',cm.email); s('c_ceo',cm.ceo); s('c_addr',cm.addr);
+  } else {
+    const eEl=document.getElementById('c_email'); if(eEl)eEl.value='shhan@clify.co.kr';
+    const nEl=document.getElementById('c_docNum'); if(nEl)nEl.value=`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}-경영관리본부-001`;
   }
 }
 
-function generateAll() {
-  const selected = investors.filter(i => i.selected);
-  if (!selected.length) { alert('선택된 투자사가 없습니다.'); return; }
-  if (!agendas.length) { alert('안건을 먼저 입력해주세요.'); return; }
-  const common = getCommon();
-  toast(`${selected.length}개 투자사 문서 생성 중...`, 5000);
-  selected.forEach((inv, i) => {
-    setTimeout(() => {
-      const w = window.open('', '_blank');
-      if (w) {
-        w.document.write(buildHtml(inv, common));
-        w.document.close();
-        setTimeout(() => { w.focus(); w.print(); }, 700);
-      }
-      if (i === selected.length - 1) {
-        setTimeout(() => toast(`✓ ${selected.length}개 완료. 각 창에서 PDF로 저장하세요.`, 4000), 800);
-      }
-    }, i * 1000);
-  });
-}
-
-// ===== INIT =====
-function initDates() {
-  const today = new Date();
-  const fmt = d => d.toISOString().split('T')[0];
-  const docDateEl = document.getElementById('docDate');
-  const dlEl = document.getElementById('replyDeadline');
-  if (!docDateEl.value) docDateEl.value = fmt(today);
-  if (!dlEl.value) {
-    const dl = new Date(today); dl.setDate(dl.getDate() + 7);
-    dlEl.value = fmt(dl);
-  }
-}
-
-// sidebar nav 초기화 (active 상태)
-document.querySelectorAll('.nav-item').forEach((el, i) => {
-  el.addEventListener('click', () => {});
+// Auto-save common consent fields
+['c_docNum','c_docDate','c_replyDl','c_email','c_ceo','c_addr'].forEach(id=>{
+  const el=document.getElementById(id);
+  if(el)el.addEventListener('change',saveConsCommon);
 });
 
-load();
+// Sidebar nav active state
+const navTabs=['corps','consent','proxy','notice'];
+document.querySelectorAll('.nav-item').forEach((el,i)=>{
+  if(i<1) return; // skip index 0 which is the spacer
+});
+
+loadAll();
 initDates();
-renderInvestors();
-renderAgendas();
+renderCorps();
+renderConsAgendas();
+renderConsInvestors();
+updateConsInfo();
+renderProxyFields();
+renderNoticeAgendas();
+renderAttachments();
 
-// 필드 변경 시 자동 저장
-['docNum','docDate','replyDeadline','replyEmail','senderCompany','senderCeo','senderAddr'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('change', saveCommon);
-});
+// Set first nav item active
+document.querySelectorAll('.nav-item')[0]?.classList.add('active');
 </script>
 </body>
 </html>
