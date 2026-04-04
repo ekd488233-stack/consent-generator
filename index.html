@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>경영사항 동의요청 자동생성기</title>
+<style>
+:root {
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --surface2: #f0efe9;
+  --border: #e2e0d8;
+  --border2: #d0cec4;
+  --text: #1a1917;
+  --text2: #6b6960;
+  --text3: #9b9a92;
+  --accent: #1a1917;
+  --accent-light: #f0efe9;
+  --danger: #c0392b;
+  --success: #1a6b3a;
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Layout */
+.app { display: grid; grid-template-columns: 260px 1fr; min-height: 100vh; }
+
+.sidebar {
+  background: var(--text);
+  color: #fff;
+  padding: 28px 20px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-logo {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #fff;
+  padding-bottom: 20px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,.12);
+}
+
+.sidebar-logo span { display: block; font-size: 10px; font-weight: 400; color: rgba(255,255,255,.45); margin-top: 2px; letter-spacing: .04em; }
+
+.nav-item {
+  padding: 8px 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 13px;
+  color: rgba(255,255,255,.65);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all .15s;
+}
+.nav-item:hover { background: rgba(255,255,255,.08); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,.13); color: #fff; font-weight: 500; }
+
+.nav-section {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: rgba(255,255,255,.3);
+  padding: 16px 10px 6px;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,.1);
+}
+
+.main { padding: 32px 40px; max-width: 900px; }
+
+.page-header { margin-bottom: 28px; }
+.page-title { font-size: 22px; font-weight: 700; color: var(--text); }
+.page-sub { font-size: 13px; color: var(--text2); margin-top: 4px; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  margin-bottom: 16px;
+}
+
+.card-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text2);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Form */
+.form-grid { display: grid; gap: 10px; }
+.form-grid-2 { grid-template-columns: 1fr 1fr; }
+.form-grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+.field label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text2);
+  margin-bottom: 4px;
+  letter-spacing: .02em;
+}
+
+.field input,
+.field textarea,
+.field select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color .15s;
+  outline: none;
+}
+
+.field input:focus,
+.field textarea:focus { border-color: var(--text); }
+.field textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 14px;
+  border-radius: var(--radius);
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .12s;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--surface2); border-color: var(--border2); }
+.btn-primary {
+  background: var(--text);
+  color: #fff;
+  border-color: var(--text);
+  font-size: 13px;
+  padding: 9px 20px;
+}
+.btn-primary:hover { opacity: .85; background: var(--text); }
+.btn-sm { padding: 4px 9px; font-size: 11px; }
+.btn-danger { color: var(--danger); border-color: var(--border); }
+.btn-danger:hover { background: #fef2f1; border-color: var(--danger); }
+.btn-success { background: var(--success); color: #fff; border-color: var(--success); }
+.btn-success:hover { opacity: .88; background: var(--success); }
+
+/* Investor list */
+.inv-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.inv-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  background: var(--surface);
+  cursor: default;
+}
+
+.inv-check { flex-shrink: 0; width: 16px; height: 16px; cursor: pointer; accent-color: var(--text); }
+.inv-name-block { flex: 1; }
+.inv-name { font-size: 13px; font-weight: 600; color: var(--text); }
+.inv-meta { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+.inv-body {
+  display: none;
+  padding: 14px;
+  background: var(--surface2);
+  border-top: 1px solid var(--border);
+}
+.inv-body.open { display: block; }
+
+/* Agenda */
+.agenda-item {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  background: var(--surface);
+}
+.agenda-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Status bar */
+.status-bar {
+  position: fixed;
+  bottom: 24px;
+  right: 32px;
+  background: var(--text);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  display: none;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.15);
+  z-index: 1000;
+}
+.status-bar.show { display: flex; }
+
+/* Tab system */
+.tab-bar { display: flex; gap: 2px; margin-bottom: 24px; border-bottom: 1px solid var(--border); }
+.tab {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all .15s;
+}
+.tab.active { color: var(--text); border-bottom-color: var(--text); }
+.tab:hover:not(.active) { color: var(--text); }
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* Preview area */
+.preview-wrap {
+  background: #888;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  overflow: auto;
+  max-height: 70vh;
+}
+.preview-page {
+  background: white;
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto 16px;
+  padding: 25mm 20mm;
+  font-family: 'Malgun Gothic', '맑은 고딕', sans-serif;
+  font-size: 10pt;
+  color: #111;
+  line-height: 1.7;
+  box-shadow: 0 4px 24px rgba(0,0,0,.25);
+}
+
+/* Action bar */
+.action-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+}
+.action-info { font-size: 13px; color: var(--text2); }
+.action-info strong { color: var(--text); }
+
+/* Chips */
+.chip {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  background: var(--surface2);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+.chip-selected { background: #e8f5e9; color: var(--success); border-color: #c8e6c9; }
+
+/* Responsive helpers */
+.flex { display: flex; align-items: center; gap: 8px; }
+.flex-end { justify-content: flex-end; }
+.mt8 { margin-top: 8px; }
+.mt12 { margin-top: 12px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    경영관리 도구
+    <span>동의요청 자동생성기 v1.0</span>
+  </div>
+
+  <div class="nav-section">메뉴</div>
+  <div class="nav-item active" onclick="showTab('common')">
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+    공통 설정
+  </div>
+  <div class="nav-item" onclick="showTab('investors')">
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+    투자사 관리
+  </div>
+  <div class="nav-item" onclick="showTab('agenda')">
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+    안건 입력
+  </div>
+  <div class="nav-item" onclick="showTab('generate')">
+    <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+    문서 생성
+  </div>
+
+  <div class="sidebar-bottom">
+    <div style="font-size:11px;color:rgba(255,255,255,.35);line-height:1.6">
+      데이터는 브라우저에<br>자동 저장됩니다
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+<!-- 탭: 공통 설정 -->
+<div class="tab-content active" id="tab-common">
+  <div class="page-header">
+    <div class="page-title">공통 설정</div>
+    <div class="page-sub">매번 바뀌는 정보만 수정하세요. 저장됩니다.</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">발송 정보</div>
+    <div class="form-grid form-grid-3">
+      <div class="field"><label>문서 번호</label><input id="docNum" placeholder="2026-04-경영관리본부-001"></div>
+      <div class="field"><label>발신일</label><input id="docDate" type="date"></div>
+      <div class="field"><label>회신 기한</label><input id="replyDeadline" type="date"></div>
+    </div>
+    <div class="form-grid form-grid-2 mt8">
+      <div class="field"><label>회신 이메일</label><input id="replyEmail" placeholder="shhan@clify.co.kr"></div>
+      <div class="field"><label>발신 회사명</label><input id="senderCompany" placeholder="주식회사 유쾌한프로젝트"></div>
+    </div>
+    <div class="form-grid form-grid-2 mt8">
+      <div class="field"><label>발신 대표이사</label><input id="senderCeo" placeholder="홍주열"></div>
+      <div class="field"><label>발신 주소</label><input id="senderAddr" placeholder="인천광역시 부평구..."></div>
+    </div>
+  </div>
+
+  <div class="flex flex-end">
+    <button class="btn btn-primary" onclick="saveCommon()">저장</button>
+  </div>
+</div>
+
+<!-- 탭: 투자사 관리 -->
+<div class="tab-content" id="tab-investors">
+  <div class="page-header">
+    <div class="page-title">투자사 관리</div>
+    <div class="page-sub">한 번 등록하면 다음에도 그대로 사용됩니다.</div>
+  </div>
+
+  <div class="flex flex-end" style="margin-bottom:12px">
+    <button class="btn" onclick="addInvestor()">+ 투자사 추가</button>
+  </div>
+
+  <div id="investorList"></div>
+</div>
+
+<!-- 탭: 안건 입력 -->
+<div class="tab-content" id="tab-agenda">
+  <div class="page-header">
+    <div class="page-title">안건 입력</div>
+    <div class="page-sub">이번 유상증자/주총의 안건을 입력하세요. 안건은 여러 개 가능합니다.</div>
+  </div>
+
+  <div class="flex flex-end" style="margin-bottom:12px">
+    <button class="btn" onclick="addAgenda()">+ 안건 추가</button>
+  </div>
+
+  <div id="agendaList"></div>
+</div>
+
+<!-- 탭: 문서 생성 -->
+<div class="tab-content" id="tab-generate">
+  <div class="page-header">
+    <div class="page-title">문서 생성</div>
+    <div class="page-sub">선택한 투자사별로 공문 + 동의요청서 + 동의서 3페이지를 생성합니다.</div>
+  </div>
+
+  <div class="action-bar">
+    <div class="action-info" id="actionInfo">로딩 중...</div>
+    <div class="flex" style="gap:8px">
+      <button class="btn" onclick="checkAll(true)">전체 선택</button>
+      <button class="btn" onclick="checkAll(false)">전체 해제</button>
+      <button class="btn btn-primary" onclick="generateAll()">📄 선택 투자사 PDF 생성 ↗</button>
+    </div>
+  </div>
+
+  <div id="generateList"></div>
+</div>
+
+</div><!-- /main -->
+</div><!-- /app -->
+
+<div class="status-bar" id="statusBar">
+  <span id="statusText"></span>
+</div>
+
+<script>
+// ===== DATA =====
+let investors = [];
+let agendas = [];
+let activeTab = 'common';
+
+const DEFAULT_INVESTORS = [
+  { id: 1, name: "500코리아Ⅲ 투자조합", addr: "서울특별시 강남구 선릉로 428, 12층 104호(대치동)", ceo: "김경민", contractDate: "2025-06-24", contractRef: "주주간계약서 제3조(경영사항에 대한 동의권)", selected: true },
+  { id: 2, name: "뉴본한세예스24 라이징스타2호 투자조합", addr: "서울특별시 강남구 역삼로73길 5, B1층", ceo: "이근웅", contractDate: "2026-02-04", contractRef: "투자계약서 제8조(경영사항에 대한 동의권)", selected: true },
+  { id: 3, name: "두나무앤파트너스 주식회사", addr: "서울특별시 서초구 강남대로 369, 6층(서초동, 디에프타워)", ceo: "이강준", contractDate: "2025-06-24", contractRef: "주주간계약서 제3조(경영사항에 대한 동의권)", selected: true },
+  { id: 4, name: "딜라이트 킴벤처 투자조합 제1호", addr: "서울특별시 서초구 강남대로 53길 8, 10층 2호", ceo: "김현성", contractDate: "2026-03-09", contractRef: "주주간계약서 제2조(경영사항에 대한 동의권 및 협의권)", selected: true },
+  { id: 5, name: "시흥창업투자펀드 2호", addr: "경기도 시흥시 산기대학로 237, 8층 804호(정왕동, 한국공학대학교)", ceo: "", contractDate: "2025-09-15", contractRef: "투자계약서 제8조(경영사항에 대한 동의권)", selected: true },
+];
+const DEFAULT_AGENDAS = [
+  { id: 1, title: "신주식 발행의 건", content: "당사는 「벤처기업육성에 관한 특별조치법」 제16조의3에 따라 회사의 경영·기술 혁신 등에 기여하거나 기여할 수 있는 외부 전문가에게 주식매수선택권을 부여하고자 합니다.\n\n• 이름: \n• 역할: \n• 부여주식수:  주\n• 행사가격:  원" },
+];
+
+// ===== STORAGE =====
+function save() {
+  try {
+    localStorage.setItem('inv_app_investors', JSON.stringify(investors));
+    localStorage.setItem('inv_app_agendas', JSON.stringify(agendas));
+  } catch(e) {}
+}
+
+function saveCommon() {
+  const common = getCommon();
+  try { localStorage.setItem('inv_app_common', JSON.stringify(common)); } catch(e) {}
+  toast('공통 설정 저장됨');
+}
+
+function load() {
+  try {
+    const inv = localStorage.getItem('inv_app_investors');
+    investors = inv ? JSON.parse(inv) : [...DEFAULT_INVESTORS];
+    const ag = localStorage.getItem('inv_app_agendas');
+    agendas = ag ? JSON.parse(ag) : [...DEFAULT_AGENDAS];
+    const cm = localStorage.getItem('inv_app_common');
+    if (cm) {
+      const c = JSON.parse(cm);
+      if (c.docNum) document.getElementById('docNum').value = c.docNum;
+      if (c.replyEmail) document.getElementById('replyEmail').value = c.replyEmail;
+      if (c.senderCompany) document.getElementById('senderCompany').value = c.senderCompany;
+      if (c.senderCeo) document.getElementById('senderCeo').value = c.senderCeo;
+      if (c.senderAddr) document.getElementById('senderAddr').value = c.senderAddr;
+      if (c.docDate) document.getElementById('docDate').value = c.docDate;
+      if (c.replyDeadline) document.getElementById('replyDeadline').value = c.replyDeadline;
+    }
+  } catch(e) {
+    investors = [...DEFAULT_INVESTORS];
+    agendas = [...DEFAULT_AGENDAS];
+  }
+}
+
+// ===== UI =====
+function showTab(name) {
+  activeTab = name;
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  const navItems = document.querySelectorAll('.nav-item');
+  const idx = ['common','investors','agenda','generate'].indexOf(name);
+  if (navItems[idx + 2]) navItems[idx + 2].classList.add('active'); // +2 for section header
+  if (name === 'generate') renderGenerate();
+}
+
+function toast(msg, dur=2200) {
+  const bar = document.getElementById('statusBar');
+  document.getElementById('statusText').textContent = msg;
+  bar.classList.add('show');
+  setTimeout(() => bar.classList.remove('show'), dur);
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===== INVESTORS =====
+function renderInvestors() {
+  const el = document.getElementById('investorList');
+  if (!investors.length) {
+    el.innerHTML = '<div style="padding:20px;color:#888;font-size:13px">투자사가 없습니다. 위에서 추가해주세요.</div>';
+    return;
+  }
+  el.innerHTML = investors.map(inv => `
+    <div class="inv-item" id="inv-${inv.id}">
+      <div class="inv-header">
+        <input type="checkbox" class="inv-check" ${inv.selected ? 'checked' : ''} onchange="toggleInv(${inv.id},this.checked)">
+        <div class="inv-name-block">
+          <div class="inv-name">${esc(inv.name)}</div>
+          <div class="inv-meta">${inv.ceo ? esc(inv.ceo)+' 대표' : '대표이사 미입력'} · 계약일 ${inv.contractDate || '미설정'}</div>
+        </div>
+        <button class="btn btn-sm" onclick="toggleInvEdit(${inv.id})">편집</button>
+        <button class="btn btn-sm btn-danger" onclick="removeInvestor(${inv.id})">삭제</button>
+      </div>
+      <div class="inv-body" id="invbody-${inv.id}">
+        <div class="form-grid form-grid-2">
+          <div class="field"><label>투자조합명</label><input value="${esc(inv.name)}" oninput="updateInv(${inv.id},'name',this.value)"></div>
+          <div class="field"><label>대표이사</label><input value="${esc(inv.ceo)}" oninput="updateInv(${inv.id},'ceo',this.value)"></div>
+        </div>
+        <div class="field mt8"><label>주소</label><input value="${esc(inv.addr)}" oninput="updateInv(${inv.id},'addr',this.value)"></div>
+        <div class="form-grid form-grid-2 mt8">
+          <div class="field"><label>계약서 체결일</label><input type="date" value="${inv.contractDate}" oninput="updateInv(${inv.id},'contractDate',this.value)"></div>
+          <div class="field"><label>계약서 조항 (동의서 문구)</label><input value="${esc(inv.contractRef||'')} " oninput="updateInv(${inv.id},'contractRef',this.value)" placeholder="주주간계약서 제3조(경영사항에 대한 동의권)"></div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addInvestor() {
+  const id = Date.now();
+  investors.push({ id, name: "새 투자조합", addr: "", ceo: "", contractDate: "", contractRef: "", selected: true });
+  save(); renderInvestors();
+  setTimeout(() => toggleInvEdit(id), 50);
+  toast('투자사 추가됨');
+}
+
+function removeInvestor(id) {
+  if (!confirm('삭제하시겠습니까?')) return;
+  investors = investors.filter(i => i.id !== id);
+  save(); renderInvestors();
+  toast('삭제됨');
+}
+
+function toggleInv(id, val) {
+  const i = investors.find(i => i.id === id);
+  if (i) i.selected = val;
+  save();
+}
+
+function updateInv(id, field, val) {
+  const i = investors.find(i => i.id === id);
+  if (i) { i[field] = val; save(); }
+  // live update name/meta display
+  const block = document.querySelector(`#inv-${id} .inv-name`);
+  const meta = document.querySelector(`#inv-${id} .inv-meta`);
+  if (block && field === 'name') block.textContent = val;
+  if (meta) {
+    const inv2 = investors.find(i => i.id === id);
+    if (inv2) meta.textContent = `${inv2.ceo ? inv2.ceo+' 대표' : '대표이사 미입력'} · 계약일 ${inv2.contractDate || '미설정'}`;
+  }
+}
+
+function toggleInvEdit(id) {
+  const el = document.getElementById('invbody-' + id);
+  if (el) el.classList.toggle('open');
+}
+
+// ===== AGENDAS =====
+function renderAgendas() {
+  const el = document.getElementById('agendaList');
+  if (!agendas.length) {
+    el.innerHTML = '<div style="padding:20px;color:#888;font-size:13px">안건이 없습니다. 위에서 추가해주세요.</div>';
+    return;
+  }
+  el.innerHTML = agendas.map((a, i) => `
+    <div class="agenda-item">
+      <div class="agenda-label">
+        <span>제${i+1}호 안건</span>
+        <button class="btn btn-sm btn-danger" onclick="removeAgenda(${a.id})">삭제</button>
+      </div>
+      <div class="field">
+        <label>안건 제목</label>
+        <input value="${esc(a.title)}" oninput="updateAgenda(${a.id},'title',this.value)" placeholder="예: 신주식 발행의 건">
+      </div>
+      <div class="field mt8">
+        <label>안건 내용 (동의 요청서에 그대로 들어갑니다)</label>
+        <textarea oninput="updateAgenda(${a.id},'content',this.value)" placeholder="안건 상세 내용을 입력하세요...">${esc(a.content)}</textarea>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addAgenda() {
+  agendas.push({ id: Date.now(), title: "새 안건", content: "" });
+  save(); renderAgendas();
+  toast('안건 추가됨');
+}
+
+function removeAgenda(id) {
+  agendas = agendas.filter(a => a.id !== id);
+  save(); renderAgendas();
+  toast('삭제됨');
+}
+
+function updateAgenda(id, field, val) {
+  const a = agendas.find(a => a.id === id);
+  if (a) { a[field] = val; save(); }
+}
+
+// ===== GENERATE =====
+function renderGenerate() {
+  const selected = investors.filter(i => i.selected);
+  const info = document.getElementById('actionInfo');
+  info.innerHTML = `투자사 <strong>${investors.length}개</strong> 등록 · <strong style="color:#1a6b3a">${selected.length}개</strong> 선택 · 안건 <strong>${agendas.length}개</strong>`;
+
+  const el = document.getElementById('generateList');
+  el.innerHTML = investors.map(inv => `
+    <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:white;border:1px solid #e2e0d8;border-radius:8px;margin-bottom:6px">
+      <input type="checkbox" class="inv-check" id="gen-${inv.id}" ${inv.selected ? 'checked' : ''} onchange="toggleInv(${inv.id},this.checked);renderGenerate()">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${esc(inv.name)}</div>
+        <div style="font-size:11px;color:#9b9a92">${esc(inv.ceo)} 대표 · ${inv.addr ? inv.addr.substring(0,30)+'...' : '주소 미입력'}</div>
+      </div>
+      <span class="chip ${inv.selected ? 'chip-selected' : ''}">${inv.selected ? '선택됨' : '제외'}</span>
+      <button class="btn btn-sm" onclick="generateOne(${inv.id})">개별 생성 ↗</button>
+    </div>
+  `).join('');
+}
+
+function checkAll(val) {
+  investors.forEach(i => i.selected = val);
+  save(); renderGenerate();
+}
+
+function getCommon() {
+  return {
+    docNum: document.getElementById('docNum').value,
+    docDate: document.getElementById('docDate').value,
+    replyDeadline: document.getElementById('replyDeadline').value,
+    replyEmail: document.getElementById('replyEmail').value,
+    senderCompany: document.getElementById('senderCompany').value,
+    senderCeo: document.getElementById('senderCeo').value,
+    senderAddr: document.getElementById('senderAddr').value,
+  };
+}
+
+function fmtDate(dateStr) {
+  if (!dateStr) return '　　　년 　　월 　　일';
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
+}
+function fmtDateDay(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  const days = ['일','월','화','수','목','금','토'];
+  return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일(${days[d.getDay()]})`;
+}
+
+function buildHtml(inv, common) {
+  const aHtml = agendas.map((a,i) => `
+    <div style="margin-bottom:20px">
+      <p style="font-weight:bold;margin-bottom:8px;font-size:10.5pt">제${i+1}호 안건: ${a.title}</p>
+      <p style="white-space:pre-line;line-height:1.9;font-size:10pt">${a.content}</p>
+    </div>
+  `).join('');
+
+  const ceoSpaced = common.senderCeo.split('').join(' ');
+  const invCeoSpaced = inv.ceo.split('').join(' ');
+
+  return `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>경영사항 동의요청 - ${inv.name}</title>
+<style>
+  @page { size: A4; margin: 25mm 22mm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Malgun Gothic','맑은 고딕','Apple SD Gothic Neo',sans-serif; font-size:10pt; color:#111; line-height:1.7; }
+  .page { page-break-after: always; }
+  .page:last-child { page-break-after: avoid; }
+  p { margin-bottom: 10px; }
+  strong { font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- 공문 -->
+<div class="page">
+  <div style="font-size:26pt;font-weight:900;line-height:1.15;margin-bottom:22px;color:#1a1a1a">유쾌한<br>프로젝트</div>
+  <hr style="border:none;border-top:3px solid #111;margin-bottom:22px">
+  <table style="width:100%;border-collapse:collapse;margin-bottom:22px">
+    <tr><td style="width:55px;padding:4px 0;color:#555;font-size:10pt">번&nbsp;&nbsp;&nbsp;호</td><td style="padding:4px 0;font-size:10pt">: ${common.docNum}</td></tr>
+    <tr><td style="padding:4px 0;color:#555;font-size:10pt">수&nbsp;&nbsp;&nbsp;신</td><td style="padding:4px 0;font-size:10pt">: ${inv.name} 귀중</td></tr>
+    <tr><td style="padding:4px 0;color:#555;font-size:10pt">참&nbsp;&nbsp;&nbsp;조</td><td style="padding:4px 0;font-size:10pt">: </td></tr>
+    <tr><td style="padding:4px 0;color:#555;font-size:10pt">일&nbsp;&nbsp;&nbsp;자</td><td style="padding:4px 0;font-size:10pt">: ${fmtDate(common.docDate)}</td></tr>
+    <tr><td style="padding:4px 0;color:#555;font-size:10pt">제&nbsp;&nbsp;&nbsp;목</td><td style="padding:4px 0;font-size:10pt">: 경영사항 동의 요청의 건</td></tr>
+  </table>
+  <p><strong>1. 귀사의 무궁한 발전을 기원합니다.</strong></p>
+  <p><strong>2. 당사는 정기주주총회 안건에 대해 귀사의 사전 동의를 요청드리오니 검토 부탁드립니다.</strong></p>
+  <p><strong>3. 동의 요청 안건의 세부 내용은 첨부된 경영사항 동의 요청서를 참조하여 주시기 바라며, 검토 후 동의서에 서명·날인하시어 아래 기한 내 이메일로 회신하여 주시기 바랍니다.</strong></p>
+  <div style="margin:18px 0;padding:14px 18px;border-left:3px solid #111;background:#f8f8f8">
+    <p style="margin-bottom:5px">▪ 회신 기한: ${fmtDateDay(common.replyDeadline)} 까지</p>
+    <p style="margin-bottom:5px">▪ 회신 이메일: ${common.replyEmail}</p>
+    <p style="margin-bottom:0">▪ 첨부 서류: 경영사항 동의 요청의 건 1부</p>
+  </div>
+  <p><strong>4. 추가 문의 사항은 연락 주시기 바랍니다.</strong></p>
+  <div style="text-align:right;margin-top:70px">
+    <div style="font-size:11.5pt;font-weight:700;margin-bottom:6px">${common.senderCompany}</div>
+    <div style="font-size:10pt">대&nbsp;표&nbsp;이&nbsp;사&nbsp;&nbsp;${ceoSpaced}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(인)</div>
+  </div>
+</div>
+
+<!-- 동의요청서 -->
+<div class="page">
+  <div style="text-align:center;font-size:15pt;font-weight:700;margin-bottom:28px">경영사항 동의 요청의 건</div>
+  <p><strong>수신:</strong> ${inv.name} 귀중</p>
+  <p><strong>발신:</strong> ${common.senderCompany} 대표이사 ${common.senderCeo}</p>
+  <p style="margin-bottom:20px"><strong>작성일:</strong> ${fmtDate(common.docDate)}</p>
+  <p>1. 귀사의 무궁한 발전을 기원합니다.</p>
+  <p style="margin-bottom:20px">2. ${common.senderCompany}(이하 '당사')와 귀사 간에 ${fmtDate(inv.contractDate)}에 체결된 ${inv.contractRef || '주주간계약서 제3조(경영사항에 대한 동의권)'}에 의거하여, 다음 각 호의 사항에 대한 사전 서면 동의를 요청드립니다.</p>
+  ${aHtml}
+  <div style="text-align:right;margin-top:50px">
+    <div style="font-size:11pt;font-weight:700;margin-bottom:4px">${common.senderCompany}</div>
+    <div style="font-size:9.5pt;margin-bottom:8px">주소: ${common.senderAddr}</div>
+    <div style="font-size:10pt">대표이사&nbsp;&nbsp;${ceoSpaced}&nbsp;&nbsp;&nbsp;(인)</div>
+  </div>
+</div>
+
+<!-- 동의서 -->
+<div class="page">
+  <div style="text-align:center;font-size:16pt;font-weight:700;margin:50px 0 40px">동&nbsp;&nbsp;&nbsp;의&nbsp;&nbsp;&nbsp;서</div>
+  <p style="line-height:2;margin-bottom:60px">본인은 ${common.senderCompany}의 위 안건에 대하여 ${(inv.contractRef||"주주간계약서 제3조").split("(")[0]}에 따라 모두 동의합니다.</p>
+  <div style="text-align:right;margin-bottom:30px">${fmtDate(common.docDate).replace(/\d+일/, '　　일')}</div>
+  <div style="margin-top:20px">
+    <div style="font-size:11pt;font-weight:700;margin-bottom:5px">${inv.name}</div>
+    <div style="font-size:9.5pt;margin-bottom:14px">주소: ${inv.addr}</div>
+    <div style="font-size:10pt">대표이사&nbsp;&nbsp;${invCeoSpaced}&nbsp;&nbsp;&nbsp;(인)</div>
+  </div>
+</div>
+
+</body>
+</html>`;
+}
+
+function generateOne(id) {
+  const inv = investors.find(i => i.id === id);
+  if (!inv) return;
+  if (!agendas.length) { alert('안건을 먼저 입력해주세요.'); return; }
+  const common = getCommon();
+  const w = window.open('', '_blank');
+  if (w) {
+    w.document.write(buildHtml(inv, common));
+    w.document.close();
+    setTimeout(() => { w.focus(); w.print(); }, 700);
+  }
+}
+
+function generateAll() {
+  const selected = investors.filter(i => i.selected);
+  if (!selected.length) { alert('선택된 투자사가 없습니다.'); return; }
+  if (!agendas.length) { alert('안건을 먼저 입력해주세요.'); return; }
+  const common = getCommon();
+  toast(`${selected.length}개 투자사 문서 생성 중...`, 5000);
+  selected.forEach((inv, i) => {
+    setTimeout(() => {
+      const w = window.open('', '_blank');
+      if (w) {
+        w.document.write(buildHtml(inv, common));
+        w.document.close();
+        setTimeout(() => { w.focus(); w.print(); }, 700);
+      }
+      if (i === selected.length - 1) {
+        setTimeout(() => toast(`✓ ${selected.length}개 완료. 각 창에서 PDF로 저장하세요.`, 4000), 800);
+      }
+    }, i * 1000);
+  });
+}
+
+// ===== INIT =====
+function initDates() {
+  const today = new Date();
+  const fmt = d => d.toISOString().split('T')[0];
+  const docDateEl = document.getElementById('docDate');
+  const dlEl = document.getElementById('replyDeadline');
+  if (!docDateEl.value) docDateEl.value = fmt(today);
+  if (!dlEl.value) {
+    const dl = new Date(today); dl.setDate(dl.getDate() + 7);
+    dlEl.value = fmt(dl);
+  }
+}
+
+// sidebar nav 초기화 (active 상태)
+document.querySelectorAll('.nav-item').forEach((el, i) => {
+  el.addEventListener('click', () => {});
+});
+
+load();
+initDates();
+renderInvestors();
+renderAgendas();
+
+// 필드 변경 시 자동 저장
+['docNum','docDate','replyDeadline','replyEmail','senderCompany','senderCeo','senderAddr'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('change', saveCommon);
+});
+</script>
+</body>
+</html>
