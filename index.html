@@ -436,11 +436,9 @@ function previewConsent(){
   const _csel=document.getElementById('c_corpSel');
   const _cid=_csel&&_csel.value?parseInt(_csel.value):null;
   const html=buildConsentHtml(target,common,gmType,_cid);
-  const frame=document.getElementById('previewFrame');
-  const modal=document.getElementById('previewModal');
-  frame.srcdoc=html;
-  modal.style.display='block';
-  document.body.style.overflow='hidden';
+  const w=window.open('','_blank');
+  if(w){ w.document.open(); w.document.write(html); w.document.close(); }
+  else{ alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.'); }
 }
 function closePreview(){
   document.getElementById('previewModal').style.display='none';
