@@ -536,18 +536,10 @@ function buildConsentHtml(inv,cm,gmType='정기'){
   </div>
 </div>
 
-<!-- 미리보기 모달 -->
-<div id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;overflow:auto">
-  <div style="background:#fff;width:90%;max-width:860px;margin:40px auto;border-radius:8px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.3)">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#1a1a1a;color:#fff">
-      <span style="font-size:13px;font-weight:600">미리보기</span>
-      <button onclick="closePreview()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;line-height:1">✕</button>
-    </div>
-    <iframe id="previewFrame" style="width:100%;height:80vh;border:none"></iframe>
-  </div>
-</div>
 </body></html>`;
 }
+
+// 미리보기 모달 (페이지 HTML에 직접 삽입됨 - 아래 별도 위치)
 
 // ============================================================
 // 위임장
@@ -878,5 +870,16 @@ renderAttachments();
 // Set first nav item active
 document.querySelectorAll('.nav-item')[0]?.classList.add('active');
 </script>
+
+<!-- 미리보기 모달 -->
+<div id="previewModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;overflow:auto">
+  <div style="background:#fff;width:90%;max-width:860px;margin:40px auto;border-radius:8px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.3)">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 20px;background:#1a1a1a;color:#fff">
+      <span style="font-size:13px;font-weight:600">미리보기</span>
+      <button onclick="closePreview()" style="background:none;border:none;color:#fff;font-size:20px;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <iframe id="previewFrame" style="width:100%;height:80vh;border:none"></iframe>
+  </div>
+</div>
 </body>
 </html>
