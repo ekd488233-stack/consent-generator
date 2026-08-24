@@ -101,6 +101,9 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
       <div class="f"><label>문서 번호</label><input id="c_docNum"></div>
       <div class="f"><label>발신일</label><input id="c_docDate" type="date"></div>
       <div class="f"><label>회신 기한</label><input id="c_replyDl" type="date"></div>
+      <div class="f"><label>주주총회 종류</label>
+        <select id="c_gmType"><option value="정기">정기주주총회</option><option value="임시">임시주주총회</option></select>
+      </div>
     </div>
     <div class="fg fg2 mt8">
       <div class="f"><label>회신 이메일</label><input id="c_email"></div>
@@ -431,15 +434,16 @@ function genConsent(){
   const senderName = (() => { const sel2=document.getElementById('c_corpSel'); if(sel2&&sel2.value){ const c=corps.find(c=>c.id===parseInt(sel2.value)); return c?c.name:common.addr; } return common.addr||'주식회사 유쾌한프로젝트'; })();
   const senderNameFinal = (() => { const sel2=document.getElementById('c_corpSel'); if(sel2&&sel2.value){ const c=corps.find(c=>c.id===parseInt(sel2.value)); if(c)return c.name; } const el=document.getElementById('c_addr'); return el?el.value:''; })();
   toast(`${sel.length}개 문서 생성 중...`, 5000);
+  const gmType=document.getElementById('c_gmType')?.value||'정기';
   sel.forEach((inv,i)=>{
     setTimeout(()=>{
       const w=window.open('','_blank');
-      if(w){ w.document.write(buildConsentHtml(inv,common)); w.document.close(); setTimeout(()=>{w.focus();w.print();},700); }
+      if(w){ w.document.write(buildConsentHtml(inv,common,gmType)); w.document.close(); setTimeout(()=>{w.focus();w.print();},700); }
     }, i*900);
   });
 }
 
-function buildConsentHtml(inv,cm){
+function buildConsentHtml(inv,cm,gmType='정기'){
   const sender = (() => { const sel=document.getElementById('c_corpSel'); if(sel&&sel.value){ const c=corps.find(c=>c.id===parseInt(sel.value)); if(c)return c; } return {name:'주식회사 유쾌한프로젝트',ceo:cm.ceo,addr:cm.addr}; })();
   const sName=sender.name||'주식회사 유쾌한프로젝트';
   const sCeo=sender.ceo||cm.ceo||'';
@@ -461,7 +465,7 @@ function buildConsentHtml(inv,cm){
     <tr><td style="padding:4px 0;color:#555">제&nbsp;&nbsp;&nbsp;목</td><td style="padding:4px 0">: 경영사항 동의 요청의 건</td></tr>
   </table>
   <p><strong>1. 귀사의 무궁한 발전을 기원합니다.</strong></p>
-  <p><strong>2. 당사는 정기주주총회 안건에 대해 귀사의 사전 동의를 요청드리오니 검토 부탁드립니다.</strong></p>
+  <p><strong>2. 당사는 ${gmType}주주총회 안건에 대해 귀사의 사전 동의를 요청드리오니 검토 부탁드립니다.</strong></p>
   <p><strong>3. 동의 요청 안건의 세부 내용은 첨부된 경영사항 동의 요청서를 참조하여 주시기 바라며, 검토 후 동의서에 서명·날인하시어 아래 기한 내 이메일로 회신하여 주시기 바랍니다.</strong></p>
   <div style="margin:18px 0;padding:14px 18px;border-left:3px solid #111;background:#f8f8f8">
     <p style="margin-bottom:5px">▪ 회신 기한: ${fmtDateDay(cm.replyDl)} 까지</p>
