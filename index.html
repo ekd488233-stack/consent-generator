@@ -433,7 +433,9 @@ function previewConsent(){
   if(!consAgendas.length){alert('안건을 입력해주세요.');return;}
   const common=getConsCommon();
   const gmType=document.getElementById('c_gmType')?.value||'정기';
-  const html=buildConsentHtml(target,common,gmType);
+  const _csel=document.getElementById('c_corpSel');
+  const _cid=_csel&&_csel.value?parseInt(_csel.value):null;
+  const html=buildConsentHtml(target,common,gmType,_cid);
   const frame=document.getElementById('previewFrame');
   const modal=document.getElementById('previewModal');
   frame.srcdoc=html;
@@ -455,15 +457,17 @@ function genConsent(){
   const senderNameFinal = (() => { const sel2=document.getElementById('c_corpSel'); if(sel2&&sel2.value){ const c=corps.find(c=>c.id===parseInt(sel2.value)); if(c)return c.name; } const el=document.getElementById('c_addr'); return el?el.value:''; })();
   toast(`${sel.length}개 문서 생성 중...`, 5000);
   const gmType=document.getElementById('c_gmType')?.value||'정기';
+  const _csel2=document.getElementById('c_corpSel');
+  const _cid2=_csel2&&_csel2.value?parseInt(_csel2.value):null;
   sel.forEach((inv,i)=>{
     setTimeout(()=>{
       const w=window.open('','_blank');
-      if(w){ w.document.write(buildConsentHtml(inv,common,gmType)); w.document.close(); setTimeout(()=>{w.focus();w.print();},700); }
+      if(w){ w.document.write(buildConsentHtml(inv,common,gmType,_cid2)); w.document.close(); setTimeout(()=>{w.focus();w.print();},700); }
     }, i*900);
   });
 }
 
-function buildConsentHtml(inv,cm,gmType='정기'){
+function buildConsentHtml(inv,cm,gmType='정기',corpId=null){
   const sender = (() => { const sel=document.getElementById('c_corpSel'); if(sel&&sel.value){ const c=corps.find(c=>c.id===parseInt(sel.value)); if(c)return c; } return {name:'주식회사 유쾌한프로젝트',ceo:cm.ceo,addr:cm.addr}; })();
   const sName=sender.name||'주식회사 유쾌한프로젝트';
   const sCeo=sender.ceo||cm.ceo||'';
@@ -475,10 +479,8 @@ function buildConsentHtml(inv,cm,gmType='정기'){
   const aHtml=consAgendas.map((a,i)=>`<div style="margin-bottom:18px"><p style="font-weight:bold;margin-bottom:7px">제${i+1}호 안건: ${a.title}</p><p style="white-space:pre-line;line-height:1.9">${a.content}</p></div>`).join('');
   const ceoSp=sCeo.split('').join(' ');
   const invCeoSp=(inv.ceo||'').split('').join(' ');
-  const _corpSel2=document.getElementById('c_corpSel');
-  const _corpId2=_corpSel2&&_corpSel2.value?parseInt(_corpSel2.value):null;
-  const _stampImg2=_corpId2?(loadStamp(_corpId2,'법인인감')||loadStamp(_corpId2,'사용인감')||loadStamp(_corpId2,'막도장')):null;
-  const stampHtml=_stampImg2?`<img src="${_stampImg2}" style="width:72px;height:72px;position:absolute;top:-14px;right:-76px;" alt="인감">`:'(인)';
+  const _stampImg2=corpId?(loadStamp(corpId,'법인인감')||loadStamp(corpId,'사용인감')||loadStamp(corpId,'막도장')):null;
+  const stampHtml=_stampImg2?`<img src="${_stampImg2}" style="width:72px;height:72px;position:absolute;top:-14px;right:-76px;" alt="인감">`:'';
   return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>경영사항동의요청-${inv.name}</title>
 <style>@page{size:A4;margin:25mm 22mm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:10pt;color:#111;line-height:1.7;}.page{page-break-after:always;}.page:last-child{page-break-after:avoid;}p{margin-bottom:10px;}strong{font-weight:700;}</style>
 </head><body>
