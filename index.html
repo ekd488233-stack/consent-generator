@@ -448,6 +448,10 @@ function buildConsentHtml(inv,cm,gmType='정기'){
   const sName=sender.name||'주식회사 유쾌한프로젝트';
   const sCeo=sender.ceo||cm.ceo||'';
   const sAddr=sender.addr||cm.addr||'';
+  // 법인명을 2줄로 분리 (공문 로고용): '주식회사'와 나머지
+  const _nameParts=sName.replace('주식회사','').trim();
+  const sNameLine1='주식회사';
+  const sNameLine2=_nameParts||sName;
   const aHtml=consAgendas.map((a,i)=>`<div style="margin-bottom:18px"><p style="font-weight:bold;margin-bottom:7px">제${i+1}호 안건: ${a.title}</p><p style="white-space:pre-line;line-height:1.9">${a.content}</p></div>`).join('');
   const ceoSp=sCeo.split('').join(' ');
   const invCeoSp=(inv.ceo||'').split('').join(' ');
@@ -455,27 +459,34 @@ function buildConsentHtml(inv,cm,gmType='정기'){
 <style>@page{size:A4;margin:25mm 22mm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:10pt;color:#111;line-height:1.7;}.page{page-break-after:always;}.page:last-child{page-break-after:avoid;}p{margin-bottom:10px;}strong{font-weight:700;}</style>
 </head><body>
 <div class="page">
-  <div style="font-size:26pt;font-weight:900;line-height:1.15;margin-bottom:22px;color:#1a1a1a">유쾌한<br>프로젝트</div>
-  <hr style="border:none;border-top:3px solid #111;margin-bottom:22px">
-  <table style="width:100%;border-collapse:collapse;margin-bottom:22px">
-    <tr><td style="width:55px;padding:4px 0;color:#555">번&nbsp;&nbsp;&nbsp;호</td><td style="padding:4px 0">: ${cm.docNum}</td></tr>
-    <tr><td style="padding:4px 0;color:#555">수&nbsp;&nbsp;&nbsp;신</td><td style="padding:4px 0">: ${inv.name} 귀중</td></tr>
-    <tr><td style="padding:4px 0;color:#555">참&nbsp;&nbsp;&nbsp;조</td><td style="padding:4px 0">: </td></tr>
-    <tr><td style="padding:4px 0;color:#555">일&nbsp;&nbsp;&nbsp;자</td><td style="padding:4px 0">: ${fmtDate(cm.docDate)}</td></tr>
-    <tr><td style="padding:4px 0;color:#555">제&nbsp;&nbsp;&nbsp;목</td><td style="padding:4px 0">: 경영사항 동의 요청의 건</td></tr>
+  <div style="margin-bottom:30px">
+    <div style="font-size:22pt;font-weight:900;line-height:1.2;color:#1a1a1a;letter-spacing:-0.02em">${sNameLine1}<br>${sNameLine2}</div>
+  </div>
+  <hr style="border:none;border-top:3px solid #111;margin-bottom:0">
+  <hr style="border:none;border-top:1px solid #111;margin-top:3px;margin-bottom:28px">
+  <table style="width:100%;border-collapse:collapse;margin-bottom:28px;font-size:10.5pt">
+    <tr><td style="width:60px;padding:5px 0;color:#333;vertical-align:top">번&nbsp;&nbsp;&nbsp;호</td><td style="padding:5px 0">: ${cm.docNum}</td></tr>
+    <tr><td style="padding:5px 0;color:#333;vertical-align:top">수&nbsp;&nbsp;&nbsp;신</td><td style="padding:5px 0">: ${inv.name} 귀중</td></tr>
+    <tr><td style="padding:5px 0;color:#333;vertical-align:top">참&nbsp;&nbsp;&nbsp;조</td><td style="padding:5px 0">: </td></tr>
+    <tr><td style="padding:5px 0;color:#333;vertical-align:top">일&nbsp;&nbsp;&nbsp;자</td><td style="padding:5px 0">: ${fmtDate(cm.docDate)}</td></tr>
+    <tr><td style="padding:5px 0;color:#333;vertical-align:top">제&nbsp;&nbsp;&nbsp;목</td><td style="padding:5px 0">: 경영사항 동의 요청의 건</td></tr>
   </table>
-  <p><strong>1. 귀사의 무궁한 발전을 기원합니다.</strong></p>
-  <p><strong>2. 당사는 ${gmType}주주총회 안건에 대해 귀사의 사전 동의를 요청드리오니 검토 부탁드립니다.</strong></p>
-  <p><strong>3. 동의 요청 안건의 세부 내용은 첨부된 경영사항 동의 요청서를 참조하여 주시기 바라며, 검토 후 동의서에 서명·날인하시어 아래 기한 내 이메일로 회신하여 주시기 바랍니다.</strong></p>
-  <div style="margin:18px 0;padding:14px 18px;border-left:3px solid #111;background:#f8f8f8">
-    <p style="margin-bottom:5px">▪ 회신 기한: ${fmtDateDay(cm.replyDl)} 까지</p>
-    <p style="margin-bottom:5px">▪ 회신 이메일: ${cm.email}</p>
+  <hr style="border:none;border-top:2px solid #111;margin-bottom:28px">
+  <p style="margin-bottom:14px"><strong>1. 귀사의 무궁한 발전을 기원합니다.</strong></p>
+  <p style="margin-bottom:14px"><strong>2. 당사는 ${gmType}주주총회 안건에 대해 귀사의 사전 동의를 요청드리오니 검토 부탁드립니다.</strong></p>
+  <p style="margin-bottom:14px"><strong>3. 동의 요청 안건의 세부 내용은 첨부된 경영사항 동의 요청서를 참조하여 주시기 바라며, 검토 후 동의서에 서명·날인하시어 아래 기한 내 이메일로 회신하여 주시기 바랍니다.</strong></p>
+  <div style="margin:18px 0 18px 16px">
+    <p style="margin-bottom:8px">▪ 회신 기한: ${fmtDateDay(cm.replyDl)} 까지</p>
+    <p style="margin-bottom:8px">▪ 회신 이메일: ${cm.email}</p>
     <p style="margin-bottom:0">▪ 첨부 서류: 경영사항 동의 요청의 건 1부</p>
   </div>
-  <p><strong>4. 추가 문의 사항은 연락 주시기 바랍니다.</strong></p>
-  <div style="text-align:right;margin-top:70px">
-    <div style="font-size:11.5pt;font-weight:700;margin-bottom:6px">${sName}</div>
-    <div>대&nbsp;표&nbsp;이&nbsp;사&nbsp;&nbsp;${ceoSp}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(인)</div>
+  <p style="margin-bottom:14px"><strong>4. 추가 문의 사항은 연락 주시기 바랍니다.</strong></p>
+  <div style="text-align:right;margin-top:80px;position:relative">
+    <div style="font-size:12pt;font-weight:700;margin-bottom:8px;letter-spacing:.05em">${sName}</div>
+    <div style="font-size:10.5pt;position:relative;display:inline-block">
+      대&nbsp;표&nbsp;이&nbsp;사&nbsp;&nbsp;${ceoSp}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(인)
+      ${stampHtml}
+    </div>
   </div>
 </div>
 <div class="page">
