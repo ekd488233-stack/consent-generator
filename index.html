@@ -475,6 +475,10 @@ function buildConsentHtml(inv,cm,gmType='정기'){
   const aHtml=consAgendas.map((a,i)=>`<div style="margin-bottom:18px"><p style="font-weight:bold;margin-bottom:7px">제${i+1}호 안건: ${a.title}</p><p style="white-space:pre-line;line-height:1.9">${a.content}</p></div>`).join('');
   const ceoSp=sCeo.split('').join(' ');
   const invCeoSp=(inv.ceo||'').split('').join(' ');
+  const _corpSel=document.getElementById('c_corpSel');
+  const _corpId=_corpSel&&_corpSel.value?parseInt(_corpSel.value):null;
+  const _stampImg=_corpId?(loadStamp(_corpId,'법인인감')||loadStamp(_corpId,'사용인감')||loadStamp(_corpId,'막도장')):null;
+  const stampHtml=_stampImg?`<img src="${_stampImg}" style="width:62px;height:62px;position:absolute;top:-8px;right:-70px;opacity:.88;mix-blend-mode:multiply;" alt="인감">`:'';
   return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>경영사항동의요청-${inv.name}</title>
 <style>@page{size:A4;margin:25mm 22mm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:10pt;color:#111;line-height:1.7;}.page{page-break-after:always;}.page:last-child{page-break-after:avoid;}p{margin-bottom:10px;}strong{font-weight:700;}</style>
 </head><body>
