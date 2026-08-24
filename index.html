@@ -131,6 +131,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
     <div class="flex" style="gap:7px">
       <button class="btn" onclick="cCheckAll(true)">전체 선택</button>
       <button class="btn" onclick="cCheckAll(false)">전체 해제</button>
+      <button class="btn" onclick="previewConsent()">미리보기 👁</button>
       <button class="btn btn-p" onclick="genConsent()">PDF 생성 ↗</button>
     </div>
   </div>
@@ -423,6 +424,17 @@ function getConsCommon(){
     ceo:document.getElementById('c_ceo')?.value||'',
     addr:document.getElementById('c_addr')?.value||'',
   };
+}
+
+function previewConsent(){
+  const sel=investors.filter(i=>i.selected);
+  const target = sel.length ? sel[0] : investors[0];
+  if(!target){alert('투자사를 추가해주세요.');return;}
+  if(!consAgendas.length){alert('안건을 입력해주세요.');return;}
+  const common=getConsCommon();
+  const gmType=document.getElementById('c_gmType')?.value||'정기';
+  const w=window.open('','_blank');
+  if(w){ w.document.write(buildConsentHtml(target,common,gmType)); w.document.close(); }
 }
 
 function genConsent(){
