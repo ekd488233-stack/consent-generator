@@ -480,7 +480,7 @@ function buildConsentHtml(inv,cm,gmType='정기',corpId=null){
   const ceoSp=sCeo.split('').join(' ');
   const invCeoSp=(inv.ceo||'').split('').join(' ');
   const _stampImg2=corpId?(loadStamp(corpId,'법인인감')||loadStamp(corpId,'사용인감')||loadStamp(corpId,'막도장')):null;
-  const stampHtml=_stampImg2?`<img src="${_stampImg2}" style="width:72px;height:72px;position:absolute;top:-14px;right:-76px;" alt="인감">`:'';
+  const stampHtml=_stampImg2?`<img src="${_stampImg2}" style="width:72px;height:72px;position:absolute;top:0;left:0;" alt="인감">`:'';
   return `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><title>경영사항동의요청-${inv.name}</title>
 <style>@page{size:A4;margin:25mm 22mm;}*{box-sizing:border-box;margin:0;padding:0;}body{font-family:'Malgun Gothic','맑은 고딕',sans-serif;font-size:10pt;color:#111;line-height:1.7;}.page{page-break-after:always;}.page:last-child{page-break-after:avoid;}p{margin-bottom:10px;}strong{font-weight:700;}</style>
 </head><body>
@@ -507,11 +507,14 @@ function buildConsentHtml(inv,cm,gmType='정기',corpId=null){
     <p style="margin-bottom:0">▪ 첨부 서류: 경영사항 동의 요청의 건 1부</p>
   </div>
   <p style="margin-bottom:14px"><strong>4. 추가 문의 사항은 연락 주시기 바랍니다.</strong></p>
-  <div style="text-align:right;margin-top:80px;position:relative">
+  <div style="text-align:right;margin-top:80px">
     <div style="font-size:12pt;font-weight:700;margin-bottom:8px;letter-spacing:.05em">${sName}</div>
-    <div style="font-size:10.5pt;position:relative;display:inline-block">
-      대&nbsp;표&nbsp;이&nbsp;사&nbsp;&nbsp;${ceoSp}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(인)
-      ${stampHtml}
+    <div style="font-size:10.5pt;display:inline-flex;align-items:center;gap:0;position:relative">
+      <span>대&nbsp;표&nbsp;이&nbsp;사&nbsp;&nbsp;${ceoSp}&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      <span style="position:relative;display:inline-block;width:72px;height:72px;">
+        <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10.5pt">(인)</span>
+        ${stampHtml}
+      </span>
     </div>
   </div>
 </div>
@@ -526,7 +529,13 @@ function buildConsentHtml(inv,cm,gmType='정기',corpId=null){
   <div style="text-align:right;margin-top:50px">
     <div style="font-size:11pt;font-weight:700;margin-bottom:4px">${sName}</div>
     <div style="font-size:9.5pt;margin-bottom:8px">주소: ${sAddr}</div>
-    <div style="position:relative;display:inline-block">대표이사&nbsp;&nbsp;${ceoSp}&nbsp;&nbsp;&nbsp;(인)${stampHtml}</div>
+    <div style="display:inline-flex;align-items:center;gap:0">
+      <span>대표이사&nbsp;&nbsp;${ceoSp}&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      <span style="position:relative;display:inline-block;width:72px;height:72px;">
+        <span style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:10pt">(인)</span>
+        ${stampHtml}
+      </span>
+    </div>
   </div>
 </div>
 <div class="page">
